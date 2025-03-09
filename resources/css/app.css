@@ -1,0 +1,295 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Styles de base */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f8f9fa;
+    margin: 0;
+    padding: 0;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+}
+
+
+/* Barre de navigation */
+nav {
+    background-color: #343a40; /* Fond sombre */
+    padding: 20px;
+    display: flex;
+    justify-content: flex-end; /* Aligne la navigation à droite */
+}
+
+nav a {
+    color: #ffffff; /* Texte blanc */
+    margin-right: 20px;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+nav a:hover {
+    color: #adb5bd; /* Texte gris clair au survol */
+    text-decoration: underline;
+}
+
+/* Conteneur principal */
+.custom-container {
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #ffffff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Titres */
+h1 {
+    color: #343a40;
+}
+
+/* Section du tableau de bord */
+.dashboard-section {
+    margin: 20px 0;
+}
+
+.dashboard-section h2 {
+    margin-bottom: 10px;
+    color: #007bff;
+}
+
+.dashboard-section table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+.dashboard-section table, .dashboard-section th, .dashboard-section td {
+    border: 1px solid #ddd;
+}
+
+.dashboard-section th, .dashboard-section td {
+    padding: 10px;
+    text-align: left;
+}
+
+.dashboard-section th {
+    background-color: #f1f1f1;
+}
+
+/* Styles pour les boîtes de statistiques */
+.small-box {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    color: #ffffff;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 20px;
+}
+
+.small-box:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.small-box .inner {
+    padding: 10px;
+}
+
+.small-box h3 {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin: 0 0 10px 0;
+    animation: pulse 1.5s infinite;
+}
+
+.small-box p {
+    font-size: 1.2rem;
+    margin: 0;
+}
+
+.small-box .icon {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    font-size: 70px;
+    color: rgba(255, 255, 255, 0.15);
+    transition: transform 0.3s ease;
+}
+
+.small-box:hover .icon {
+    transform: scale(1.1);
+}
+
+.small-box .small-box-footer {
+    display: block;
+    padding: 10px;
+    background-color: rgba(0, 0, 0, 0.1);
+    color: rgba(255, 255, 255, 0.8);
+    text-align: center;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+}
+
+.small-box .small-box-footer:hover {
+    background-color: rgba(0, 0, 0, 0.2);
+    color: #ffffff;
+}
+
+/* Dégradés de couleur pour les boîtes */
+.small-box.bg-info {
+    background: linear-gradient(135deg, #17a2b8, #1abc9c);
+}
+
+.small-box.bg-success {
+    background: linear-gradient(135deg, #28a745, #2ecc71);
+}
+
+.small-box.bg-warning {
+    background: linear-gradient(135deg, #ffc107, #f39c12);
+}
+
+.small-box.bg-danger {
+    background: linear-gradient(135deg, #dc3545, #e74c3c);
+}
+
+/* Barre de progression */
+.progress {
+    height: 5px;
+    background-color: rgba(255, 255, 255, 0.3);
+    border-radius: 2px;
+    margin-top: 10px;
+}
+
+.progress-bar {
+    background-color: white;
+    border-radius: 2px;
+}
+
+/* Animation de pulsation pour les titres */
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* Styles pour le pied de page */
+footer {
+    background-color: #343a40; /* Fond sombre */
+    color: #ffffff; /* Texte blanc */
+    padding: 20px 0;
+    text-align: center;
+}
+
+footer .footer-content {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+footer h5 {
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+    color: #ffffff; /* Texte blanc */
+}
+
+footer ul {
+    list-style: none;
+    padding: 0;
+}
+
+footer ul li {
+    margin-bottom: 5px;
+}
+
+footer ul li a {
+    color: #ffffff; /* Texte blanc */
+    text-decoration: none;
+}
+
+footer ul li a:hover {
+    color: #adb5bd; /* Texte gris clair au survol */
+    text-decoration: underline;
+}
+
+footer .social-icons a {
+    color: #ffffff; /* Texte blanc */
+    margin-right: 10px;
+    font-size: 1.5rem;
+}
+
+footer .social-icons a:hover {
+    color: #adb5bd; /* Texte gris clair au survol */
+}
+
+footer .text-center {
+    background-color: rgba(0, 0, 0, 0.2);
+    padding: 10px 0;
+    margin-top: 20px;
+}
+
+footer .text-center a {
+    color: #ffffff; /* Texte blanc */
+    text-decoration: none;
+}
+
+footer .text-center a:hover {
+    color: #adb5bd; /* Texte gris clair au survol */
+    text-decoration: underline;
+}
+
+/* Styles pour le bouton du menu hamburger */
+#menu-toggle {
+    display: none; /* Masqué par défaut sur les grands écrans */
+}
+
+@media (max-width: 767px) {
+    #menu-toggle {
+        display: block; /* Affiché sur les petits écrans */
+    }
+
+    .nav-links, .user-info {
+        display: none; /* Masque les liens et les infos utilisateur sur les petits écrans */
+    }
+
+    #mobile-menu {
+        display: none; /* Masqué par défaut */
+    }
+
+    #mobile-menu.show {
+        display: block; /* Affiché lorsqu'il est activé */
+    }
+
+    #mobile-menu a {
+        display: block;
+        padding: 10px 20px;
+        color: #ffffff;
+        text-decoration: none;
+    }
+
+    #mobile-menu a:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+}
+
+/* Compatibilité des navigateurs */
+.your-class {
+    text-align: -webkit-match-parent;
+    text-align: match-parent;
+}
+
+.your-class {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+}
