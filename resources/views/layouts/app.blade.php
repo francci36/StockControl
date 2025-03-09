@@ -1,46 +1,40 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="fr">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>@yield('title', 'Laravel')</title>
-
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-
-    <!-- Font Awesome pour les icônes -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@yield('title')</title>
+    <!-- AdminLTE CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/css/adminlte.min.css">
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-
-    <!-- Styles CSS avec Vite -->
-    @vite('resources/css/app.css')
+    <!-- Tailwind CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    @stack('styles') <!-- Pour les styles spécifiques à la page -->
 </head>
-<body class="bg-gray-100">
-    <div id="app" class="flex flex-col min-h-screen">
-        <!-- Barre de navigation -->
-        @if (Route::has('login'))
-            <header class="shadow-sm">
-                @include('layouts.navigation')
-            </header>
-        @endif
+<body class="hold-transition sidebar-mini">
+    <div class="wrapper">
+        <!-- Navbar -->
+        @include('partials.navbar')
+
+        <!-- Sidebar -->
+        @include('partials.sidebar')
 
         <!-- Contenu principal -->
-        <main class="flex-grow container mx-auto p-4">
+        <div class="content-wrapper">
             @yield('content')
-        </main>
+        </div>
 
-        <!-- Pied de page -->
-        @include('layouts.footer')
+        <!-- Footer -->
+        @include('partials.footer')
     </div>
 
-    <!-- Scripts avec Vite -->
-    @vite('resources/js/app.js')
-
-    <!-- Scripts supplémentaires -->
-    @yield('scripts')
-
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-    
+    <!-- AdminLTE JS -->
+    <script src="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/js/adminlte.min.js"></script>
+    @stack('scripts') <!-- Pour les scripts spécifiques à la page -->
 </body>
 </html>

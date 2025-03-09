@@ -3,148 +3,175 @@
 @section('title', 'Tableau de bord')
 
 @section('content')
-<div class="container-fluid">
-    <div class="row">
-        <!-- Statistiques -->
-        <div class="col-lg-3 col-6">
-            <div class="small-box bg-info">
-                <div class="inner">
-                    <h3>{{ $totalSuppliers }}</h3>
-                    <p>Fournisseurs</p>
-                </div>
-                <div class="icon">
-                    <i class="fas fa-truck"></i>
-                </div>
-                <a href="{{ route('suppliers.index') }}" class="small-box-footer">Plus d'infos <i class="fas fa-arrow-circle-right"></i></a>
-            </div>
-        </div>
-
-        <div class="col-lg-3 col-6">
-            <div class="small-box bg-success">
-                <div class="inner">
-                    <h3>{{ $totalProducts }}</h3>
-                    <p>Produits en stock</p>
-                </div>
-                <div class="icon">
-                    <i class="fas fa-box"></i>
-                </div>
-                <a href="{{ route('products.index') }}" class="small-box-footer">Plus d'infos <i class="fas fa-arrow-circle-right"></i></a>
-            </div>
-        </div>
-
-        <div class="col-lg-3 col-6">
-            <div class="small-box bg-warning">
-                <div class="inner">
-                    <h3>{{ $pendingOrders }}</h3>
-                    <p>Commandes en attente</p>
-                </div>
-                <div class="icon">
-                    <i class="fas fa-clock"></i>
-                </div>
-                <a href="{{ route('orders.index') }}" class="small-box-footer">Plus d'infos <i class="fas fa-arrow-circle-right"></i></a>
-            </div>
-        </div>
-
-        <div class="col-lg-3 col-6">
-            <div class="small-box bg-danger">
-                <div class="inner">
-                    <h3>{{ count($lowStock) }}</h3>
-                    <p>Produits à réapprovisionner</p>
-                </div>
-                <div class="icon">
-                    <i class="fas fa-exclamation-triangle"></i>
-                </div>
-                <a href="{{ route('products.index') }}" class="small-box-footer">Plus d'infos <i class="fas fa-arrow-circle-right"></i></a>
-            </div>
-        </div>
-    </div>
-
-    <div class="row">
-        <!-- Filtres -->
-        <div class="col-lg-12">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">
-                        <i class="fas fa-filter mr-1"></i>
-                        Filtres
-                    </h3>
-                </div>
-                <div class="card-body">
-                    <select id="filter" class="form-control">
-                        <option value="7">7 derniers jours</option>
-                        <option value="30">30 derniers jours</option>
-                        <option value="90">90 derniers jours</option>
-                    </select>
+<div class="content-wrapper">
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0">Tableau de bord</h1>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="row">
-        <!-- Graphique des stocks -->
-        <section class="col-lg-8 connectedSortable">
-            <div class="card bg-gradient-primary">
-                <div class="card-header border-0">
-                    <h3 class="card-title">
-                        <i class="fas fa-th mr-1"></i>
-                        Graphique des stocks
-                    </h3>
-                    <div class="card-tools">
-                        <button type="button" class="btn bg-primary btn-sm" data-card-widget="collapse">
-                            <i class="fas fa-minus"></i>
-                        </button>
-                        <button id="exportChart" class="btn bg-primary btn-sm">
-                            <i class="fas fa-download"></i> Exporter
-                        </button>
+    <div class="content">
+        <div class="container-fluid">
+            <!-- Petites boîtes de statistiques -->
+            <div class="row">
+                <!-- Fournisseurs -->
+                <div class="col-lg-3 col-6">
+                    <div class="small-box bg-info">
+                        <div class="inner">
+                            <h3>{{ $totalSuppliers }}</h3>
+                            <p>Fournisseurs</p>
+                        </div>
+                        <div class="icon">
+                            <i class="fas fa-truck"></i>
+                        </div>
+                        <a href="{{ route('suppliers.index') }}" class="small-box-footer">
+                            Plus d'infos <i class="fas fa-arrow-circle-right"></i>
+                        </a>
                     </div>
                 </div>
-                <div class="card-body">
-                    <canvas id="stockChart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
-                </div>
-            </div>
-        </section>
 
-        <!-- Graphique en camembert -->
-        <section class="col-lg-4 connectedSortable">
-            <div class="card bg-gradient-primary">
-                <div class="card-header border-0">
-                    <h3 class="card-title">
-                        <i class="fas fa-chart-pie mr-1"></i>
-                        Répartition des stocks
-                    </h3>
-                    <div class="card-tools">
-                        <button type="button" class="btn bg-primary btn-sm" data-card-widget="collapse">
-                            <i class="fas fa-minus"></i>
-                        </button>
+                <!-- Produits en stock -->
+                <div class="col-lg-3 col-6">
+                    <div class="small-box bg-success">
+                        <div class="inner">
+                            <h3>{{ $totalProducts }}</h3>
+                            <p>Produits en stock</p>
+                        </div>
+                        <div class="icon">
+                            <i class="fas fa-box"></i>
+                        </div>
+                        <a href="{{ route('products.index') }}" class="small-box-footer">
+                            Plus d'infos <i class="fas fa-arrow-circle-right"></i>
+                        </a>
                     </div>
                 </div>
-                <div class="card-body">
-                    <canvas id="pieChart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
-                </div>
-            </div>
-        </section>
-    </div>
 
-    <div class="row">
-        <!-- Graphique des transactions -->
-        <section class="col-lg-12 connectedSortable">
-            <div class="card bg-gradient-primary">
-                <div class="card-header border-0">
-                    <h3 class="card-title">
-                        <i class="fas fa-chart-line mr-1"></i>
-                        Graphique des transactions
-                    </h3>
-                    <div class="card-tools">
-                        <button type="button" class="btn bg-primary btn-sm" data-card-widget="collapse">
-                            <i class="fas fa-minus"></i>
-                        </button>
+                <!-- Commandes en attente -->
+                <div class="col-lg-3 col-6">
+                    <div class="small-box bg-warning">
+                        <div class="inner">
+                            <h3>{{ $pendingOrders }}</h3>
+                            <p>Commandes en attente</p>
+                        </div>
+                        <div class="icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <a href="{{ route('orders.index') }}" class="small-box-footer">
+                            Plus d'infos <i class="fas fa-arrow-circle-right"></i>
+                        </a>
                     </div>
                 </div>
-                <div class="card-body">
-                    <canvas id="transactionsChart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
+
+                <!-- Produits à réapprovisionner -->
+                <div class="col-lg-3 col-6">
+                    <div class="small-box bg-danger">
+                        <div class="inner">
+                            <h3>{{ count($lowStock) }}</h3>
+                            <p>Produits à réapprovisionner</p>
+                        </div>
+                        <div class="icon">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <a href="{{ route('products.index') }}" class="small-box-footer">
+                            Plus d'infos <i class="fas fa-arrow-circle-right"></i>
+                        </a>
+                    </div>
                 </div>
             </div>
-        </section>
+
+            <!-- Filtres -->
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <i class="fas fa-filter mr-1"></i>
+                                Filtres
+                            </h3>
+                        </div>
+                        <div class="card-body">
+                            <select id="filter" class="form-control">
+                                <option value="7">7 derniers jours</option>
+                                <option value="30">30 derniers jours</option>
+                                <option value="90">90 derniers jours</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Graphiques -->
+            <div class="row">
+                <!-- Graphique des stocks -->
+                <div class="col-lg-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <i class="fas fa-th mr-1"></i>
+                                Graphique des stocks
+                            </h3>
+                            <div class="card-tools">
+                                <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                    <i class="fas fa-minus"></i>
+                                </button>
+                                <button id="exportChart" class="btn btn-tool">
+                                    <i class="fas fa-download"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="stockChart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Graphique en camembert -->
+                <div class="col-lg-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <i class="fas fa-chart-pie mr-1"></i>
+                                Répartition des stocks
+                            </h3>
+                            <div class="card-tools">
+                                <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                    <i class="fas fa-minus"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="pieChart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Graphique des transactions -->
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <i class="fas fa-chart-line mr-1"></i>
+                                Graphique des transactions
+                            </h3>
+                            <div class="card-tools">
+                                <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                    <i class="fas fa-minus"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="transactionsChart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 

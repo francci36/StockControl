@@ -18,6 +18,7 @@
     "vite": "^6.2.1"
   },
   "dependencies": {
+    "admin-lte": "^4.0.0-beta3",
     "chart.js": "^4.4.6",
     "chartjs-adapter-moment": "^1.0.1"
   },

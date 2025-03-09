@@ -2,33 +2,30 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Styles de base */
+/* Styles de base compatibles avec AdminLTE */
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f8f9fa;
+    font-family: 'Source Sans Pro', sans-serif; /* Police par défaut d'AdminLTE */
+    background-color: #f4f6f9; /* Couleur de fond par défaut d'AdminLTE */
     margin: 0;
     padding: 0;
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
 }
 
-
 /* Barre de navigation */
-nav {
-    background-color: #343a40; /* Fond sombre */
-    padding: 20px;
-    display: flex;
-    justify-content: flex-end; /* Aligne la navigation à droite */
+.navbar {
+    background-color: #343a40; /* Couleur de fond sombre */
+    padding: 0.5rem 1rem; /* Espacement interne */
 }
 
-nav a {
+.navbar a {
     color: #ffffff; /* Texte blanc */
-    margin-right: 20px;
+    margin-right: 1rem; /* Espacement entre les liens */
     text-decoration: none;
     font-weight: bold;
 }
 
-nav a:hover {
+.navbar a:hover {
     color: #adb5bd; /* Texte gris clair au survol */
     text-decoration: underline;
 }
@@ -45,6 +42,8 @@ nav a:hover {
 /* Titres */
 h1 {
     color: #343a40;
+    font-size: 1.5rem; /* Taille de police par défaut d'AdminLTE */
+    font-weight: 600;
 }
 
 /* Section du tableau de bord */
@@ -54,7 +53,8 @@ h1 {
 
 .dashboard-section h2 {
     margin-bottom: 10px;
-    color: #007bff;
+    color: #007bff; /* Couleur bleue Bootstrap */
+    font-size: 1.25rem;
 }
 
 .dashboard-section table {
@@ -76,10 +76,10 @@ h1 {
     background-color: #f1f1f1;
 }
 
-/* Styles pour les boîtes de statistiques */
+/* Styles pour les boîtes de statistiques (compatibles avec AdminLTE) */
 .small-box {
     transition: transform 0.3s ease, box-shadow 0.3s ease;
-    border-radius: 10px;
+    border-radius: 0.25rem; /* Bordure arrondie Bootstrap */
     border: 1px solid rgba(255, 255, 255, 0.2);
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     color: #ffffff;
@@ -102,7 +102,6 @@ h1 {
     font-size: 2.5rem;
     font-weight: bold;
     margin: 0 0 10px 0;
-    animation: pulse 1.5s infinite;
 }
 
 .small-box p {
@@ -166,19 +165,6 @@ h1 {
 .progress-bar {
     background-color: white;
     border-radius: 2px;
-}
-
-/* Animation de pulsation pour les titres */
-@keyframes pulse {
-    0% {
-        transform: scale(1);
-    }
-    50% {
-        transform: scale(1.1);
-    }
-    100% {
-        transform: scale(1);
-    }
 }
 
 /* Styles pour le pied de page */
@@ -247,49 +233,4 @@ footer .text-center a {
 footer .text-center a:hover {
     color: #adb5bd; /* Texte gris clair au survol */
     text-decoration: underline;
-}
-
-/* Styles pour le bouton du menu hamburger */
-#menu-toggle {
-    display: none; /* Masqué par défaut sur les grands écrans */
-}
-
-@media (max-width: 767px) {
-    #menu-toggle {
-        display: block; /* Affiché sur les petits écrans */
-    }
-
-    .nav-links, .user-info {
-        display: none; /* Masque les liens et les infos utilisateur sur les petits écrans */
-    }
-
-    #mobile-menu {
-        display: none; /* Masqué par défaut */
-    }
-
-    #mobile-menu.show {
-        display: block; /* Affiché lorsqu'il est activé */
-    }
-
-    #mobile-menu a {
-        display: block;
-        padding: 10px 20px;
-        color: #ffffff;
-        text-decoration: none;
-    }
-
-    #mobile-menu a:hover {
-        background-color: rgba(255, 255, 255, 0.1);
-    }
-}
-
-/* Compatibilité des navigateurs */
-.your-class {
-    text-align: -webkit-match-parent;
-    text-align: match-parent;
-}
-
-.your-class {
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
 }
