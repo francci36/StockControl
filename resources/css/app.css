@@ -234,3 +234,38 @@ footer .text-center a:hover {
     color: #adb5bd; /* Texte gris clair au survol */
     text-decoration: underline;
 }
+
+/* Styles pour les cartes */
+.container .card {
+    border-radius: 10px !important;
+}
+
+/* Styles pour les lignes du tableau au survol */
+.container .table-hover tbody tr:hover {
+    background-color: #f8f9fa !important;
+}
+
+/* Styles pour les éléments du menu déroulant */
+.container .dropdown-item {
+    transition: background-color 0.3s ease !important;
+}
+
+.container .dropdown-item:hover {
+    background-color: #f8f9fa !important;
+}
+
+/* Styles pour les boutons */
+.container .btn-primary,
+.container .btn-secondary {
+    transition: all 0.3s ease !important;
+}
+
+.container .btn-primary:hover {
+    background-color: #0056b3 !important;
+    border-color: #0056b3 !important;
+}
+
+.container .btn-secondary:hover {
+    background-color: #5a6268 !important;
+    border-color: #545b62 !important;
+}
