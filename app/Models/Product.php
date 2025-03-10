@@ -48,4 +48,14 @@ class Product extends Model
     {
         return $this->hasOne(Stock::class);
     }
+
+    /**
+     * Relation avec les transactions.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function transactions()
+    {
+        return $this->hasMany(Transaction::class);
+    }
 }

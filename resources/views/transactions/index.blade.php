@@ -12,6 +12,8 @@
                 <tr>
                     <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Produit</th>
                     <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantité</th>
+                    <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Prix Unitaire</th>
+                    <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Valeur Totale</th>
                     <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
                     <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
                 </tr>
@@ -21,6 +23,8 @@
                 <tr>
                     <td class="px-6 py-4 whitespace-nowrap">{{ $transaction->product->name }}</td>
                     <td class="px-6 py-4 whitespace-nowrap">{{ $transaction->quantity }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">{{ number_format($transaction->price, 2, ',', ' ') }} €</td>
+                    <td class="px-6 py-4 whitespace-nowrap">{{ number_format($transaction->quantity * $transaction->price, 2, ',', ' ') }} €</td>
                     <td class="px-6 py-4 whitespace-nowrap">{{ $transaction->type }}</td>
                     <td class="px-6 py-4 whitespace-nowrap">{{ $transaction->created_at->format('d/m/Y H:i') }}</td>
                 </tr>
