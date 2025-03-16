@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use App\Models\Transaction;
+use App\Models\Stock;
 use App\Notifications\LowStockNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -29,42 +30,35 @@ class TransactionController extends Controller
         // Validation des données
         $request->validate([
             'product_id' => 'required|exists:products,id',
-            'quantity' => 'required|integer|min:1',
+            'quantity' => 'required|numeric|min:1',
             'price' => 'required|numeric|min:0',
             'type' => 'required|in:entry,exit',
         ]);
 
-        // Utiliser une transaction de base de données
-        DB::beginTransaction();
-        try {
-            // Création de la transaction
-            $transaction = Transaction::create($request->all());
+        // Création de la transaction
+        $transaction = Transaction::create([
+            'product_id' => $request->product_id,
+            'quantity' => $request->quantity,
+            'price' => $request->price,
+            'type' => $request->type,
+        ]);
 
-            // Mettre à jour le stock
-            if ($transaction->type == 'entry') {
-                $transaction->product->increment('stock', $transaction->quantity);
-            } else {
-                // Vérifier si le stock est suffisant avant de décrémenter
-                if ($transaction->product->stock < $transaction->quantity) {
-                    return redirect()->back()->with('error', 'Stock insuffisant pour cette transaction.');
-                }
-                $transaction->product->decrement('stock', $transaction->quantity);
+        // Mise à jour du stock
+        $product = Product::findOrFail($request->product_id);
+        $stock = Stock::firstOrCreate(['product_id' => $product->id]);
 
-                // Vérifier si le stock est inférieur au seuil et envoyer une notification
-                if ($transaction->product->stock < $transaction->product->stock_threshold) {
-                    $transaction->product->notify(new LowStockNotification($transaction->product));
-                }
-            }
-
-            // Valider la transaction
-            DB::commit();
-
-            return redirect()->route('transactions.index')->with('success', 'Transaction enregistrée avec succès.');
-        } catch (\Exception $e) {
-            // Annuler la transaction en cas d'erreur
-            DB::rollBack();
-            return redirect()->back()->with('error', 'Une erreur est survenue lors de l\'enregistrement de la transaction.');
+        if ($request->type === 'entry') {
+            // Ajouter la quantité au stock
+            $stock->quantity += $request->quantity;
+        } else {
+            // Soustraire la quantité du stock
+            $stock->quantity -= $request->quantity;
         }
+
+        // Sauvegarder le stock mis à jour
+        $stock->save();
+
+        return redirect()->route('transactions.index')->with('success', 'Transaction enregistrée avec succès.');
     }
 }
 

@@ -4,18 +4,18 @@ namespace App\Http\Controllers;
 
 use App\Models\Order;
 use App\Models\Product;
-use App\Models\OrderItem;
 use App\Models\User;
 use App\Models\Supplier;
+use App\Models\Stock;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
 class OrderController extends Controller
 {
     public function index()
     {
-        $orders = Order::with(['user', 'supplier', 'items.product'])->get();
+        // Chargement des relations nécessaires
+        $orders = Order::with(['user', 'supplier', 'products'])->get();
         return view('orders.index', compact('orders'));
     }
 
@@ -48,14 +48,16 @@ class OrderController extends Controller
             'date' => $validatedData['date'],
         ]);
 
-        // Ajout des éléments de commande
+        // Ajout des éléments à la commande via la table pivot
         foreach ($validatedData['items'] as $itemData) {
-            $order->items()->create($itemData);
+            $order->products()->attach($itemData['product_id'], [
+                'quantity' => $itemData['quantity'],
+            ]);
         }
 
         return redirect()->route('orders.index')->with('success', 'Commande créée avec succès.');
     }
-    
+
     public function edit($id)
     {
         $order = Order::findOrFail($id);
@@ -66,81 +68,79 @@ class OrderController extends Controller
     }
 
     public function update(Request $request, $id)
-{
-    $validated = $request->validate([
-        'supplier_id' => 'required|exists:suppliers,id',
-        'date' => 'required|date',
-        'status' => 'required|string',
-        'items' => 'required|array',
-        'items.*.product_id' => 'required|exists:products,id',
-        'items.*.quantity' => 'required|integer|min:1',
-        'new_items' => 'array',
-        'new_items.*.product_id' => 'exists:products,id',
-        'new_items.*.quantity' => 'integer|min:1',
-    ]);
+    {
+        $validated = $request->validate([
+            'supplier_id' => 'required|exists:suppliers,id',
+            'date' => 'required|date',
+            'status' => 'required|string',
+            'items' => 'required|array',
+            'items.*.product_id' => 'required|exists:products,id',
+            'items.*.quantity' => 'required|integer|min:1',
+        ]);
 
-    $order = Order::findOrFail($id);
-    $order->update([
-        'supplier_id' => $validated['supplier_id'],
-        'date' => $validated['date'],
-        'status' => $validated['status'],
-    ]);
+        $order = Order::findOrFail($id);
+        $order->update([
+            'supplier_id' => $validated['supplier_id'],
+            'date' => $validated['date'],
+            'status' => $validated['status'],
+        ]);
 
-    // Mettre à jour les éléments existants
-    foreach ($validated['items'] as $itemId => $itemData) {
-        $order->items()->where('id', $itemId)->update($itemData);
-    }
-
-    // Ajouter les nouveaux éléments de commande
-    if (isset($validated['new_items'])) {
-        foreach ($validated['new_items'] as $newItemData) {
-            $order->items()->create($newItemData);
+        // Mise à jour des éléments de commande
+        $order->products()->detach(); // Supprime les anciens éléments
+        foreach ($validated['items'] as $itemData) {
+            $order->products()->attach($itemData['product_id'], [
+                'quantity' => $itemData['quantity'],
+            ]);
         }
+
+        return redirect()->route('orders.index')->with('success', 'Commande mise à jour avec succès.');
     }
-
-    // Mettre à jour le stock seulement si la commande est arrivée
-    if ($order->status === 'arrivé') {
-        $order->updateStock();
-    }
-
-    return redirect()->route('orders.index')->with('success', 'Commande mise à jour avec succès');
-}
-
 
     public function destroy($id)
     {
         $order = Order::findOrFail($id);
+        $order->products()->detach(); // Supprime les relations avec les produits
         $order->delete();
 
-        return redirect()->route('orders.index')->with('success', 'Commande supprimée avec succès');
+        return redirect()->route('orders.index')->with('success', 'Commande supprimée avec succès.');
     }
 
-    public function updateStatus(Request $request, $id)
-{
-    $order = Order::with('items.product')->findOrFail($id);
-    $previousStatus = $order->status;
-    $newStatus = $request->input('status');
+    public function updateStatus(Request $request, $orderId)
+    {
+        $order = Order::findOrFail($orderId);
+        $order->status = $request->input('status');
+        $order->save();
 
-    Log::info('Mise à jour du statut de la commande.', [
-        'order_id' => $order->id,
-        'previous_status' => $previousStatus,
-        'new_status' => $newStatus
-    ]);
+        if ($order->status === 'arrivé') {
+            $this->updateStock($order, true);
+        }
 
-    // Mettez à jour le statut de la commande
-    $order->update(['status' => $newStatus]);
-
-    // Mettez à jour le stock des produits associés
-    if ($newStatus === 'arrivé' && $previousStatus !== 'arrivé') {
-        Log::info('Condition "arrivé" remplie. Appel à updateStock avec increment.');
-        $order->updateStock(true);
-    } elseif ($previousStatus === 'arrivé' && $newStatus !== 'arrivé') {
-        Log::info('Condition "non arrivé" remplie. Appel à updateStock avec decrement.');
-        $order->updateStock(false);
+        return redirect()->route('orders.index')->with('success', 'Statut de la commande mis à jour.');
     }
 
-    return redirect()->route('orders.index')->with('success', 'Statut de la commande mis à jour avec succès');
-}
+    private function updateStock(Order $order, $increment = true)
+    {
+        foreach ($order->products as $product) {
+            $quantity = $product->pivot->quantity;
 
+            $stock = Stock::where('product_id', $product->id)->first();
 
+            if ($stock) {
+                $stock->quantity += ($increment ? $quantity : -$quantity);
+                $stock->save();
+            } else {
+                Stock::create([
+                    'product_id' => $product->id,
+                    'quantity' => $quantity,
+                    'price' => $product->price,
+                ]);
+            }
+
+            Log::info('Stock mis à jour', [
+                'product_id' => $product->id,
+                'quantity' => $quantity,
+                'increment' => $increment,
+            ]);
+        }
+    }
 }

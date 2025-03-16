@@ -20,7 +20,7 @@
             <tbody class="divide-y divide-gray-200">
                 @foreach ($orders as $order)
                     <tr>
-                        <td class="px-6 py-4">{{ $order->id }}</td>
+                        <td class="px-6 py-4">{{ $order->id }}, Quantity: {{ $order->pivot ? $order->pivot->quantity : 'N/A' }}</td>
                         <td class="px-6 py-4">{{ $order->supplier->name }}</td>
                         <td class="px-6 py-4">{{ $order->date->format('d/m/Y') }}</td>
                         <td class="px-6 py-4">{{ $order->status }}</td>

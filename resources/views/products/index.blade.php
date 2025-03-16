@@ -16,7 +16,6 @@
                 <th>Nom</th>
                 <th>Description</th>
                 <th>Prix</th>
-                <th>Quantité en stock</th>
                 <th>Fournisseur</th>
             </tr>
         </thead>
@@ -26,7 +25,6 @@
                     <td>{{ $product->name }}</td>
                     <td>{{ $product->description }}</td>
                     <td>{{ $product->price }}</td>
-                    <td>{{ is_object($product->stock) ? $product->stock->quantity : $product->stock }}</td>
                     <td>{{ $product->supplier->name }}</td>
                 </tr>
             @endforeach

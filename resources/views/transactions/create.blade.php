@@ -1,4 +1,3 @@
-<!-- resources/views/transactions/create.blade.php -->
 @extends('layouts.app')
 
 @section('title', 'Nouvelle transaction')
@@ -20,7 +19,7 @@
         </div>
         <div class="mb-4">
             <label for="quantity" class="block text-gray-700">Quantité :</label>
-            <input type="number" name="quantity" id="quantity" class="form-input mt-1 block w-full" required>
+            <input type="number" name="quantity" id="quantity" class="form-input mt-1 block w-full" required min="1">
         </div>
         <div class="mb-4">
             <label for="price" class="block text-gray-700">Prix Unitaire :</label>
@@ -58,6 +57,14 @@
     // Mettre à jour le prix unitaire lors de la sélection du produit
     document.getElementById('product_id').addEventListener('change', function () {
         const selectedProduct = this.options[this.selectedIndex];
+        const price = selectedProduct.getAttribute('data-price');
+        document.getElementById('price').value = price;
+        updateTotal();
+    });
+
+    // Initialiser le prix unitaire au chargement de la page
+    document.addEventListener('DOMContentLoaded', function () {
+        const selectedProduct = document.getElementById('product_id').options[0];
         const price = selectedProduct.getAttribute('data-price');
         document.getElementById('price').value = price;
         updateTotal();

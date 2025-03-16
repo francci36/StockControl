@@ -1,4 +1,3 @@
-<!-- resources/views/transactions/index.blade.php -->
 @extends('layouts.app')
 
 @section('title', 'Transactions')
@@ -25,7 +24,11 @@
                     <td class="px-6 py-4 whitespace-nowrap">{{ $transaction->quantity }}</td>
                     <td class="px-6 py-4 whitespace-nowrap">{{ number_format($transaction->price, 2, ',', ' ') }} €</td>
                     <td class="px-6 py-4 whitespace-nowrap">{{ number_format($transaction->quantity * $transaction->price, 2, ',', ' ') }} €</td>
-                    <td class="px-6 py-4 whitespace-nowrap">{{ $transaction->type }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 py-1 text-sm rounded-full {{ $transaction->type === 'entry' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+                            {{ $transaction->type === 'entry' ? 'Entrée' : 'Sortie' }}
+                        </span>
+                    </td>
                     <td class="px-6 py-4 whitespace-nowrap">{{ $transaction->created_at->format('d/m/Y H:i') }}</td>
                 </tr>
                 @endforeach

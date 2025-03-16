@@ -41,10 +41,14 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard/transactions-data', [DashboardController::class, 'transactionsData'])->name('dashboard.transactionsData');
 
     Route::get('/stocks', [StockController::class, 'index'])->name('stocks.index');
+    Route::get('/api/stock-data', [DashboardController::class, 'getStockData']);
+    Route::get('/dashboard/stock-data', [DashboardController::class, 'getStockData']);
+
     // routes/web.php
     Route::get('/transactions', [TransactionController::class, 'index'])->name('transactions.index');
     Route::get('/transactions/create', [TransactionController::class, 'create'])->name('transactions.create');
     Route::post('/transactions', [TransactionController::class, 'store'])->name('transactions.store');
+    Route::get('/dashboard/transactions-data', [DashboardController::class, 'transactionsData']);
 
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
     Route::get('/orders/create/{supplier_id}', [OrderController::class, 'create'])->name('orders.create');

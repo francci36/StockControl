@@ -16,10 +16,10 @@ class ProductController extends Controller
      */
     public function create($supplier_id)
     {
-        // Récupère le fournisseur ou renvoie une erreur 404 si non trouvé
+        // Récupérer le fournisseur ou renvoyer une erreur 404 si non trouvé
         $supplier = Supplier::findOrFail($supplier_id);
 
-        // Retourne la vue avec le fournisseur
+        // Retourner la vue avec le fournisseur
         return view('products.create', compact('supplier'));
     }
 
@@ -31,23 +31,27 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
+        // Validation des données de la requête
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'price' => 'required|numeric',
+            'price' => 'required|numeric|min:0', // S'assurer que le prix est positif
             'supplier_id' => 'required|exists:suppliers,id',
+            'stock_threshold' => 'nullable|integer|min:0', // Validation du seuil de stock
         ]);
 
+        // Création du produit avec gestion des valeurs par défaut
         Product::create([
-            'name' => $validated['name'],
-            'description' => $validated['description'],
+            'name' => $validated['name'], // Champ requis
+            'description' => $validated['description'] ?? '', // Valeur par défaut si non fournie
             'price' => $validated['price'],
             'supplier_id' => $validated['supplier_id'],
-            'quantity' => 0, // Quantité initiale à zéro
-            'stock' => 0, // Stock initial à zéro
+            'quantity' => 0, // Quantité initiale par défaut
+            'stock_threshold' => $validated['stock_threshold'] ?? 0, // Valeur par défaut
         ]);
 
-        return redirect()->route('suppliers.index')->with('success', 'Produit ajouté au fournisseur avec succès');
+        // Rediriger vers l'index des fournisseurs avec un message de succès
+        return redirect()->route('suppliers.index')->with('success', 'Produit ajouté au fournisseur avec succès.');
     }
 
     /**
@@ -57,7 +61,10 @@ class ProductController extends Controller
      */
     public function index()
     {
-        $products = Product::with(['supplier', 'stock'])->get(); // Charger les relations `supplier` et `stock`
+        // Récupérer tous les produits avec leur fournisseur associé
+        $products = Product::with('supplier')->get();
+
+        // Retourner la vue avec les produits
         return view('products.index', compact('products'));
     }
 }
