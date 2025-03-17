@@ -57,9 +57,15 @@ class SupplierController extends Controller
 
     public function destroy($id)
     {
+        // Trouver le fournisseur
         $supplier = Supplier::findOrFail($id);
+
+        // Supprimer les produits associés à ce fournisseur
+        $supplier->products()->delete();
+
+        // Supprimer le fournisseur
         $supplier->delete();
 
-        return redirect()->route('suppliers.index')->with('success', 'Fournisseur supprimé avec succès');
+        return redirect()->route('suppliers.index')->with('success', 'Fournisseur supprimé avec succès.');
     }
 }

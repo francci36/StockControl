@@ -33,7 +33,6 @@ class OrderController extends Controller
         $validatedData = $request->validate([
             'user_id' => 'required|exists:users,id',
             'supplier_id' => 'required|exists:suppliers,id',
-            'status' => 'required|string',
             'date' => 'required|date',
             'items' => 'required|array',
             'items.*.product_id' => 'required|exists:products,id',
@@ -44,7 +43,7 @@ class OrderController extends Controller
         $order = Order::create([
             'user_id' => $validatedData['user_id'],
             'supplier_id' => $validatedData['supplier_id'],
-            'status' => $validatedData['status'],
+            'status' => 'pending', // Statut par défaut
             'date' => $validatedData['date'],
         ]);
 

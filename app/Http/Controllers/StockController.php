@@ -16,6 +16,8 @@ class StockController extends Controller
         // Log pour vérifier les données
         Log::info('Stocks récupérés : ', $stocks->items());
 
+        
+
 
         // Passer les données à la vue
         return view('stocks.index', compact('stocks'));

@@ -27,10 +27,9 @@
             <label for="date">Date</label>
             <input type="date" name="date" id="date" class="form-control">
         </div>
-        <div class="form-group">
-            <label for="status">Statut</label>
-            <input type="text" name="status" id="status" class="form-control">
-        </div>
+        
+        
+
         <div class="form-group">
             <label for="items">Éléments de commande</label>
             <div id="items">

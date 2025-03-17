@@ -37,7 +37,7 @@ class ProductController extends Controller
             'description' => 'nullable|string',
             'price' => 'required|numeric|min:0', // S'assurer que le prix est positif
             'supplier_id' => 'required|exists:suppliers,id',
-            'stock_threshold' => 'nullable|integer|min:0', // Validation du seuil de stock
+            'stock_threshold' => 'nullable|integer|min:5', // Validation du seuil de stock
         ]);
 
         // Création du produit avec gestion des valeurs par défaut
@@ -47,7 +47,7 @@ class ProductController extends Controller
             'price' => $validated['price'],
             'supplier_id' => $validated['supplier_id'],
             'quantity' => 0, // Quantité initiale par défaut
-            'stock_threshold' => $validated['stock_threshold'] ?? 0, // Valeur par défaut
+            'stock_threshold' => $validated['stock_threshold'] ?? 5, // Valeur par défaut
         ]);
 
         // Rediriger vers l'index des fournisseurs avec un message de succès

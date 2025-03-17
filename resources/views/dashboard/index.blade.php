@@ -83,7 +83,7 @@
                 </div>
             </div>
 
-            <!-- Filtres -->
+            <!-- Filtres améliorés -->
             <div class="row">
                 <div class="col-lg-12">
                     <div class="card">
@@ -94,11 +94,34 @@
                             </h3>
                         </div>
                         <div class="card-body">
-                            <select id="filter" class="form-control">
-                                <option value="7">7 derniers jours</option>
-                                <option value="30">30 derniers jours</option>
-                                <option value="90">90 derniers jours</option>
-                            </select>
+                            <div class="form-row">
+                                <div class="form-group col-md-4">
+                                    <label for="filterPeriod">Période</label>
+                                    <select id="filterPeriod" class="form-control">
+                                        <option value="7">7 derniers jours</option>
+                                        <option value="30">30 derniers jours</option>
+                                        <option value="90">90 derniers jours</option>
+                                    </select>
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label for="filterCategory">Catégorie</label>
+                                    <select id="filterCategory" class="form-control">
+                                        <option value="all">Toutes les catégories</option>
+                                        <option value="electronics">Électronique</option>
+                                        <option value="clothing">Vêtements</option>
+                                        <!-- Ajoutez d'autres catégories ici -->
+                                    </select>
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label for="filterStatus">Statut</label>
+                                    <select id="filterStatus" class="form-control">
+                                        <option value="all">Tous les statuts</option>
+                                        <option value="pending">En attente</option>
+                                        <option value="completed">Terminé</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <button id="applyFilters" class="btn btn-primary">Appliquer les filtres</button>
                         </div>
                     </div>
                 </div>
@@ -112,7 +135,7 @@
                         <div class="card-header">
                             <h3 class="card-title">
                                 <i class="fas fa-th mr-1"></i>
-                                Graphique des stocks
+                                Évolution des stocks par produit
                             </h3>
                             <div class="card-tools">
                                 <button type="button" class="btn btn-tool" data-card-widget="collapse">
@@ -149,21 +172,31 @@
                     </div>
                 </div>
             </div>
-    
-               <!-- Graphique des transactions -->
+
+            <!-- Graphique des transactions -->
+            <div class="row">
                 <div class="col-lg-12">
                     <div class="card">
                         <div class="card-header">
                             <h3 class="card-title">
                                 <i class="fas fa-chart-line mr-1"></i>
-                                Graphique des transactions
+                                Évolution des transactions
                             </h3>
+                            <div class="card-tools">
+                                <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                    <i class="fas fa-minus"></i>
+                                </button>
+                                <button id="exportTransactionsChart" class="btn btn-tool">
+                                    <i class="fas fa-download"></i>
+                                </button>
+                            </div>
                         </div>
                         <div class="card-body">
                             <canvas id="transactionsChart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
                         </div>
                     </div>
                 </div>
+            </div>
         </div>
     </div>
 </div>
@@ -174,182 +207,207 @@
 <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment/dist/chartjs-adapter-moment.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-    // Données initiales pour les graphiques
-    let stockData = @json($stockData); // Assurez-vous que $stockData est bien défini côté serveur
-    let labels = stockData.map(data => data.produit);
-    let quantities = stockData.map(data => data.quantite);
+        // Données initiales pour les graphiques
+        let stockData = @json($stockData); // Assurez-vous que $stockData est bien défini côté serveur
+        let labels = stockData.map(data => data.produit);
+        let quantities = stockData.map(data => data.quantite);
 
-    // Fonction pour générer une couleur en fonction de la quantité
-    const getColor = (quantity) => {
-        if (quantity < 4) {
-            return 'rgba(255, 99, 132, 0.9)'; // Rouge : stock critique
-        } else if (quantity >= 4 && quantity < 10) {
-            return 'rgba(255, 206, 86, 0.9)'; // Jaune : stock moyen
-        } else {
-            return 'rgba(75, 192, 192, 0.9)'; // Bleu : stock élevé
-        }
-    };
+        // Fonction pour générer une couleur en fonction de la quantité
+        const getColor = (quantity) => {
+            if (quantity < 4) {
+                return 'rgba(255, 99, 132, 0.9)'; // Rouge : stock critique
+            } else if (quantity >= 4 && quantity < 10) {
+                return 'rgba(255, 206, 86, 0.9)'; // Jaune : stock moyen
+            } else {
+                return 'rgba(75, 192, 192, 0.9)'; // Bleu : stock élevé
+            }
+        };
 
-    // Générer les couleurs dynamiques en fonction des quantités
-    let backgroundColors = quantities.map(getColor);
+        // Générer les couleurs dynamiques en fonction des quantités
+        let backgroundColors = quantities.map(getColor);
 
-    // Graphique des stocks (barres)
-    const ctxStock = document.getElementById('stockChart').getContext('2d');
-    const stockChart = new Chart(ctxStock, {
-        type: 'bar',
-        data: {
-            labels: labels,
-            datasets: [{
-                label: 'Quantité en stock',
-                data: quantities,
-                backgroundColor: backgroundColors,
-                borderColor: 'rgba(60,141,188,0.8)',
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    grid: {
-                        color: 'rgba(0, 0, 0, 0.1)'
+        // Graphique des stocks (barres)
+        const ctxStock = document.getElementById('stockChart').getContext('2d');
+        const stockChart = new Chart(ctxStock, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Quantité en stock',
+                    data: quantities,
+                    backgroundColor: backgroundColors,
+                    borderColor: 'rgba(60,141,188,0.8)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.1)'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.1)'
+                        }
                     }
                 },
-                x: {
-                    grid: {
-                        color: 'rgba(0, 0, 0, 0.1)'
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `Quantité: ${context.raw}`;
+                            }
+                        }
                     }
                 }
             }
-        }
-    });
+        });
 
-    // Graphique de répartition des stocks (camembert)
-    const ctxPie = document.getElementById('pieChart').getContext('2d');
-    const pieChart = new Chart(ctxPie, {
-        type: 'pie',
-        data: {
-            labels: labels,
-            datasets: [{
-                label: 'Répartition des stocks',
-                data: quantities,
-                backgroundColor: backgroundColors,
-                borderColor: 'rgba(255, 255, 255, 0.8)',
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'top',
+        // Graphique de répartition des stocks (camembert)
+        const ctxPie = document.getElementById('pieChart').getContext('2d');
+        const pieChart = new Chart(ctxPie, {
+            type: 'pie',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Répartition des stocks',
+                    data: quantities,
+                    backgroundColor: backgroundColors,
+                    borderColor: 'rgba(255, 255, 255, 0.8)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `Quantité: ${context.raw}`;
+                            }
+                        }
+                    }
                 }
             }
-        }
-    });
+        });
 
-    // Fonction pour mettre à jour les graphiques avec les nouvelles données du serveur
-    function updateCharts() {
-        fetch('/dashboard/stock-data')
-            .then(response => response.json())
-            .then(data => {
-                const newLabels = data.labels;
-                const newQuantities = data.quantities;
-
-                // Mettre à jour le graphique des stocks
-                stockChart.data.labels = newLabels;
-                stockChart.data.datasets[0].data = newQuantities;
-                stockChart.data.datasets[0].backgroundColor = newQuantities.map(getColor);
-                stockChart.update();
-
-                // Mettre à jour le graphique en camembert
-                pieChart.data.labels = newLabels;
-                pieChart.data.datasets[0].data = newQuantities;
-                pieChart.data.datasets[0].backgroundColor = newQuantities.map(getColor);
-                pieChart.update();
-            })
-            .catch(error => console.error('Erreur lors de la mise à jour des graphiques :', error));
-    }
-
-    // Initialisation du graphique des transactions
-    const ctxTransactions = document.getElementById('transactionsChart').getContext('2d');
-    const transactionsChart = new Chart(ctxTransactions, {
-        type: 'line',
-        data: {
-            labels: [], // Les dates des transactions
-            datasets: [{
-                label: 'Nombre de transactions',
-                data: [], // Le nombre de transactions par date
-                backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                borderColor: 'rgba(75, 192, 192, 1)',
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                y: {
-                    beginAtZero: true
+        // Initialisation du graphique des transactions
+        const ctxTransactions = document.getElementById('transactionsChart').getContext('2d');
+        const transactionsChart = new Chart(ctxTransactions, {
+            type: 'line',
+            data: {
+                labels: [], // Les dates des transactions
+                datasets: [{
+                    label: 'Nombre de transactions',
+                    data: [], // Le nombre de transactions par date
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                },
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `Transactions: ${context.raw}`;
+                            }
+                        }
+                    }
                 }
             }
-        }
-    });
+        });
 
-    // Fonction pour mettre à jour le graphique des transactions
-    function updateTransactionsChart() {
-        fetch('/dashboard/transactions-data')
-            .then(response => response.json())
-            .then(data => {
-                // Mettre à jour les données du graphique
-                transactionsChart.data.labels = data.map(transaction => transaction.date);
-                transactionsChart.data.datasets[0].data = data.map(transaction => transaction.count);
-                transactionsChart.update();
-            })
-            .catch(error => console.error('Erreur lors de la mise à jour du graphique des transactions :', error));
-    }
+        // Fonction pour mettre à jour les graphiques avec les nouvelles données du serveur
+        function updateCharts() {
+            const period = document.getElementById('filterPeriod').value;
+            const category = document.getElementById('filterCategory').value;
+            const status = document.getElementById('filterStatus').value;
 
-    // Rafraîchir les données toutes les 5 secondes (optionnel)
-    setInterval(updateCharts, 5000);
-    setInterval(updateTransactionsChart, 5000);
-
-    // Gestion du filtre par période
-    const filterElement = document.getElementById('filter');
-    if (filterElement) {
-        filterElement.addEventListener('change', function () {
-            const days = this.value;
-            fetch(`/dashboard/stock-data?days=${days}`)
+            fetch(`/dashboard/stock-data?period=${period}&category=${category}&status=${status}`)
                 .then(response => response.json())
                 .then(data => {
                     const newLabels = data.labels;
                     const newQuantities = data.quantities;
 
+                    // Mettre à jour le graphique des stocks
                     stockChart.data.labels = newLabels;
                     stockChart.data.datasets[0].data = newQuantities;
                     stockChart.data.datasets[0].backgroundColor = newQuantities.map(getColor);
                     stockChart.update();
 
+                    // Mettre à jour le graphique en camembert
                     pieChart.data.labels = newLabels;
                     pieChart.data.datasets[0].data = newQuantities;
                     pieChart.data.datasets[0].backgroundColor = newQuantities.map(getColor);
                     pieChart.update();
-                });
-        });
-    }
+                })
+                .catch(error => console.error('Erreur lors de la mise à jour des graphiques :', error));
+        }
 
-    // Exportation du graphique des stocks en image
-    const exportButton = document.getElementById('exportChart');
-    if (exportButton) {
-        exportButton.addEventListener('click', function () {
-            const link = document.createElement('a');
-            link.href = stockChart.toBase64Image();
-            link.download = 'graphique_stocks.png';
-            link.click();
+        // Fonction pour mettre à jour le graphique des transactions
+        function updateTransactionsChart() {
+            const period = document.getElementById('filterPeriod').value;
+            const category = document.getElementById('filterCategory').value;
+            const status = document.getElementById('filterStatus').value;
+
+            fetch(`/dashboard/transactions-data?period=${period}&category=${category}&status=${status}`)
+                .then(response => response.json())
+                .then(data => {
+                    transactionsChart.data.labels = data.map(transaction => transaction.date);
+                    transactionsChart.data.datasets[0].data = data.map(transaction => transaction.count);
+                    transactionsChart.update();
+                })
+                .catch(error => console.error('Erreur lors de la mise à jour du graphique des transactions :', error));
+        }
+
+        // Appliquer les filtres
+        document.getElementById('applyFilters').addEventListener('click', function () {
+            updateCharts();
+            updateTransactionsChart();
         });
-    }
-});
+
+        // Rafraîchir les données toutes les 5 secondes (optionnel)
+        setInterval(updateCharts, 5000);
+        setInterval(updateTransactionsChart, 5000);
+
+        // Exportation du graphique des stocks en image
+        const exportButton = document.getElementById('exportChart');
+        if (exportButton) {
+            exportButton.addEventListener('click', function () {
+                const link = document.createElement('a');
+                link.href = stockChart.toBase64Image();
+                link.download = 'graphique_stocks.png';
+                link.click();
+            });
+        }
+
+        // Exportation du graphique des transactions en image
+        const exportTransactionsButton = document.getElementById('exportTransactionsChart');
+        if (exportTransactionsButton) {
+            exportTransactionsButton.addEventListener('click', function () {
+                const link = document.createElement('a');
+                link.href = transactionsChart.toBase64Image();
+                link.download = 'graphique_transactions.png';
+                link.click();
+            });
+        }
+    });
 </script>
 @endsection

@@ -32,7 +32,7 @@
                         <!-- Seuil de stock (avec avertissement si nécessaire) -->
                         <td class="px-6 py-4 whitespace-nowrap">
                             @if($stock->quantity <= $stock->product->stock_threshold)
-                                <span class="text-red-500">{{ $stock->product->stock_threshold }}</span>
+                                <span class="text-red-500">{{ $stock->product->stock_threshold ?? 5 }}</span>
                             @else
                                 {{ $stock->product->stock_threshold }}
                             @endif

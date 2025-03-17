@@ -15,7 +15,7 @@ class Product extends Model
         'price',
         'quantity',
         'supplier_id',
-        'stock_threshold',
+        'stock_threshold' => 5,
     ];
 
     public function supplier()
@@ -39,4 +39,10 @@ class Product extends Model
     {
         return $this->hasOne(Stock::class);
     }
+
+    public function getStockThresholdAttribute($value)
+    {
+        return $value ?? 5; // Utilise 5 comme valeur par défaut
+    }
+
 }
