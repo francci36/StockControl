@@ -4,30 +4,45 @@
 <div class="container">
     <h1>Liste des produits</h1>
 
+    <!-- Afficher les messages de succès -->
     @if (session('success'))
         <div class="alert alert-success">
             {{ session('success') }}
         </div>
     @endif
 
-    <table class="table">
-        <thead>
+    <!-- Afficher les messages d'erreur -->
+    @if (session('error'))
+        <div class="alert alert-danger">
+            {{ session('error') }}
+        </div>
+    @endif
+
+    <!-- Tableau des produits -->
+    <table class="table table-bordered table-striped">
+        <thead class="table-dark">
             <tr>
                 <th>Nom</th>
                 <th>Description</th>
                 <th>Prix</th>
+                <th>Quantité</th>
                 <th>Fournisseur</th>
             </tr>
         </thead>
         <tbody>
-            @foreach ($products as $product)
+            @forelse ($products as $product)
                 <tr>
                     <td>{{ $product->name }}</td>
                     <td>{{ $product->description }}</td>
-                    <td>{{ $product->price }}</td>
-                    <td>{{ $product->supplier->name }}</td>
+                    <td>{{ number_format($product->price, 2, ',', ' ') }} €</td>
+                    <td>{{ $product->quantity }}</td>
+                    <td>{{ optional($product->supplier)->name }}</td>
                 </tr>
-            @endforeach
+            @empty
+                <tr>
+                    <td colspan="4" class="text-center">Aucun produit disponible.</td>
+                </tr>
+            @endforelse
         </tbody>
     </table>
 </div>

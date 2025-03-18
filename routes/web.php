@@ -57,12 +57,17 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/orders/{id}', [OrderController::class, 'update'])->name('orders.update');
     Route::delete('/orders/{id}', [OrderController::class, 'destroy'])->name('orders.destroy');
     Route::patch('/orders/{id}/updateStatus', [OrderController::class, 'updateStatus'])->name('orders.updateStatus');
+
+    // routes/suppliers.php
     Route::get('/suppliers', [SupplierController::class, 'index'])->name('suppliers.index');
     Route::get('/suppliers/create', [SupplierController::class, 'create'])->name('suppliers.create');
     Route::post('/suppliers', [SupplierController::class, 'store'])->name('suppliers.store');
     Route::delete('/suppliers/{id}', [SupplierController::class, 'destroy'])->name('suppliers.destroy');
     Route::get('/suppliers/{id}/edit', [SupplierController::class, 'edit'])->name('suppliers.edit');
     Route::patch('/suppliers/{id}', [SupplierController::class, 'update'])->name('suppliers.update');
+    Route::post('/suppliers/store-with-products', [SupplierController::class, 'storeWithProducts'])->name('suppliers.storeWithProducts');
+    
+    // routes/rapports.php
     Route::get('/rapports', [RapportController::class, 'index'])->name('rapports.index');
 });
 

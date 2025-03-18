@@ -18,22 +18,22 @@
                 <!-- Champ pour utilisateur -->
                 <div>
                     <label for="user_id" class="block text-gray-700 font-medium">Utilisateur</label>
-                    <select name="user_id" id="user_id" class="form-select mt-1 block w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-300" required>
-                        @foreach($users as $user)
-                        <option value="{{ $user->id }}">{{ $user->name }}</option>
-                        @endforeach
+                    <select name="user_id" id="user_id" class="form-select mt-1 block w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-300" required disabled>
+                        <option value="{{ auth()->id() }}">{{ auth()->user()->name }}</option>
                     </select>
+                    <input type="hidden" name="user_id" value="{{ auth()->id() }}">
                 </div>
+
 
                 <!-- Champ pour fournisseur -->
                 <div>
-                    <label for="supplier_id" class="block text-gray-700 font-medium">Fournisseur</label>
-                    <select name="supplier_id" id="supplier_id" class="form-select mt-1 block w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-300" required>
-                        @foreach($suppliers as $supplier)
-                        <option value="{{ $supplier->id }}">{{ $supplier->name }}</option>
-                        @endforeach
-                    </select>
+                        <label for="supplier_id" class="block text-gray-700 font-medium">Fournisseur</label>
+                        <select name="supplier_id" id="supplier_id" class="form-select mt-1 block w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-300" required disabled>
+                            <option value="{{ $supplier_id }}">{{ \App\Models\Supplier::find($supplier_id)->name }}</option>
+                        </select>
+                        <input type="hidden" name="supplier_id" value="{{ $supplier_id }}">
                 </div>
+
 
                 <!-- Champ pour la date -->
                 <div>
