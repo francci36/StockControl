@@ -15,7 +15,7 @@ class TransactionController extends Controller
 {
     public function index()
     {
-        $transactions = Transaction::with('product')->get();
+        $transactions = Transaction::with('product')->paginate(10);
         return view('transactions.index', compact('transactions'));
     }
 

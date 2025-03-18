@@ -14,10 +14,11 @@ class OrderController extends Controller
 {
     public function index()
     {
-        // Chargement des relations nécessaires
-        $orders = Order::with(['user', 'supplier', 'products'])->get();
+        // Chargement des relations nécessaires avec pagination
+        $orders = Order::with(['user', 'supplier', 'products'])->paginate(10); // 10 éléments par page
         return view('orders.index', compact('orders'));
     }
+
 
     public function create($supplier_id)
     {

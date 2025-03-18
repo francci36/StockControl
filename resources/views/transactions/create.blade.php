@@ -3,13 +3,15 @@
 @section('title', 'Nouvelle transaction')
 
 @section('content')
-<div class="bg-white p-6 rounded-lg shadow">
-    <h2 class="text-2xl font-semibold mb-6">Nouvelle transaction</h2>
-    <form action="{{ route('transactions.store') }}" method="POST">
+<div class="bg-white p-6 rounded-lg shadow-lg">
+    <h2 class="text-2xl font-semibold mb-6 text-blue-600 flex items-center">
+        <i class="fas fa-coins mr-2"></i> Nouvelle transaction
+    </h2>
+    <form action="{{ route('transactions.store') }}" method="POST" class="space-y-4">
         @csrf
-        <div class="mb-4">
-            <label for="product_id" class="block text-gray-700">Produit :</label>
-            <select name="product_id" id="product_id" class="form-select mt-1 block w-full" required>
+        <div>
+            <label for="product_id" class="block text-gray-700 font-medium">Produit :</label>
+            <select name="product_id" id="product_id" class="form-select mt-1 block w-full focus:ring-2 focus:ring-blue-300 rounded-lg" required>
                 @foreach($products as $product)
                 <option value="{{ $product->id }}" data-price="{{ $product->price }}">
                     {{ $product->name }} ({{ number_format($product->price, 2, ',', ' ') }} €)
@@ -17,33 +19,34 @@
                 @endforeach
             </select>
         </div>
-        <div class="mb-4">
-            <label for="quantity" class="block text-gray-700">Quantité :</label>
-            <input type="number" name="quantity" id="quantity" class="form-input mt-1 block w-full" required min="1">
+        <div>
+            <label for="quantity" class="block text-gray-700 font-medium">Quantité :</label>
+            <input type="number" name="quantity" id="quantity" class="form-input mt-1 block w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-300" required min="1">
         </div>
-        <div class="mb-4">
-            <label for="price" class="block text-gray-700">Prix Unitaire :</label>
-            <input type="number" name="price" id="price" class="form-input mt-1 block w-full" step="0.01" required>
+        <div>
+            <label for="price" class="block text-gray-700 font-medium">Prix Unitaire :</label>
+            <input type="number" name="price" id="price" class="form-input mt-1 block w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-300" step="0.01" required>
         </div>
-        <div class="mb-4">
-            <label for="total" class="block text-gray-700">Total :</label>
-            <input type="number" name="total" id="total" class="form-input mt-1 block w-full" readonly>
+        <div>
+            <label for="total" class="block text-gray-700 font-medium">Total :</label>
+            <input type="number" name="total" id="total" class="form-input mt-1 block w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-300 bg-gray-100" readonly>
         </div>
-        <div class="mb-4">
-            <label for="type" class="block text-gray-700">Type :</label>
-            <select name="type" id="type" class="form-select mt-1 block w-full">
+        <div>
+            <label for="type" class="block text-gray-700 font-medium">Type :</label>
+            <select name="type" id="type" class="form-select mt-1 block w-full focus:ring-2 focus:ring-blue-300 rounded-lg">
                 <option value="entry">Entrée</option>
                 <option value="exit">Sortie</option>
             </select>
         </div>
         <div class="flex items-center justify-end mt-4">
-            <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Enregistrer</button>
+            <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg shadow-md">
+                <i class="fas fa-save mr-2"></i> Enregistrer
+            </button>
         </div>
     </form>
 </div>
 
 <script>
-    // Calcul automatique du total
     document.getElementById('quantity').addEventListener('input', updateTotal);
     document.getElementById('price').addEventListener('input', updateTotal);
 
@@ -54,7 +57,6 @@
         document.getElementById('total').value = isNaN(total) ? '' : total.toFixed(2);
     }
 
-    // Mettre à jour le prix unitaire lors de la sélection du produit
     document.getElementById('product_id').addEventListener('change', function () {
         const selectedProduct = this.options[this.selectedIndex];
         const price = selectedProduct.getAttribute('data-price');
@@ -62,7 +64,6 @@
         updateTotal();
     });
 
-    // Initialiser le prix unitaire au chargement de la page
     document.addEventListener('DOMContentLoaded', function () {
         const selectedProduct = document.getElementById('product_id').options[0];
         const price = selectedProduct.getAttribute('data-price');
