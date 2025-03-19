@@ -82,6 +82,7 @@
             <input type="text" name="products[${index}][name]" class="form-input mt-1 flex-1 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-300" placeholder="Nom du produit" required>
             <input type="number" name="products[${index}][price]" class="form-input mt-1 flex-1 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-300" placeholder="Prix" required>
             <input type="number" name="products[${index}][stock_threshold]" class="form-input mt-1 flex-1 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-300" placeholder="Seuil de stock">
+            <input type="text" name="products[${index}][description]" class="form-input mt-1 flex-1 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-300" placeholder="Description">
             <button type="button" class="remove-product bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded-lg">
                 Supprimer
             </button>
@@ -102,5 +103,6 @@
         });
     });
 </script>
+
 
 @endsection

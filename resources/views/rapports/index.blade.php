@@ -51,27 +51,20 @@
                             <td class="border px-4 py-2 text-gray-600">{{ $report->description }}</td>
                             <td class="border px-4 py-2 text-gray-800">{{ $report->created_at->translatedFormat('d/m/Y') }}</td>
                             <td class="border px-4 py-2 text-gray-800">
-                                <ul>
-                                    @forelse ($report->transactions as $transaction)
-                                        <li>
-                                            {{ $transaction->type === 'entry' ? 'Entrée' : 'Sortie' }} :
-                                            {{ $transaction->quantity }} unités à {{ number_format($transaction->price, 2) }} €
-                                        </li>
-                                    @empty
-                                        <li class="text-gray-500">Aucune transaction associée.</li>
-                                    @endforelse
-                                </ul>
+                                @if($report->transactions->isNotEmpty())
+                                    {{ $report->transactions->count() }} transactions associées.
+                                    <a href="#" class="text-blue-500 hover:underline" onclick="event.preventDefault(); showModal('transactions-modal-{{ $report->id }}')">Voir détails</a>
+                                @else
+                                    <span class="text-gray-500">Aucune transaction associée.</span>
+                                @endif
                             </td>
                             <td class="border px-4 py-2 text-gray-800">
-                                <ul>
-                                    @forelse ($report->stocks as $stock)
-                                        <li>
-                                            {{ $stock->type }} : {{ $stock->quantity }} unités
-                                        </li>
-                                    @empty
-                                        <li class="text-gray-500">Aucun stock associé.</li>
-                                    @endforelse
-                                </ul>
+                                @if($report->stocks->isNotEmpty())
+                                    {{ $report->stocks->count() }} stocks associés.
+                                    <a href="#" class="text-blue-500 hover:underline" onclick="event.preventDefault(); showModal('stocks-modal-{{ $report->id }}')">Voir détails</a>
+                                @else
+                                    <span class="text-gray-500">Aucun stock associé.</span>
+                                @endif
                             </td>
                         </tr>
                         @endforeach
@@ -84,6 +77,60 @@
                 {{ $reports->links() }}
             </div>
         </div>
+
+        <!-- Modals pour afficher les détails -->
+        @foreach ($reports as $report)
+            <!-- Modal pour les transactions -->
+            <div id="transactions-modal-{{ $report->id }}" class="hidden fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center z-50 p-4">
+                <div class="bg-white rounded-lg shadow-lg w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+                    <div class="p-6">
+                        <h2 class="text-lg font-bold mb-4">Transactions associées au {{ $report->name }}</h2>
+                        <ul>
+                            @foreach ($report->transactions as $transaction)
+                                <li class="mb-2">
+                                    {{ $transaction->type === 'entry' ? 'Entrée' : 'Sortie' }} :
+                                    {{ $transaction->quantity }} unités à {{ number_format($transaction->price, 2) }} €
+                                </li>
+                            @endforeach
+                        </ul>
+                        <div class="mt-4 flex justify-end">
+                            <button class="bg-blue-500 hover:bg-blue-700 text-white py-1 px-4 rounded-lg" onclick="hideModal('transactions-modal-{{ $report->id }}')">Fermer</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal pour les stocks -->
+            <div id="stocks-modal-{{ $report->id }}" class="hidden fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center z-50 p-4">
+                <div class="bg-white rounded-lg shadow-lg w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+                    <div class="p-6">
+                        <h2 class="text-lg font-bold mb-4">Stocks associés au {{ $report->name }}</h2>
+                        <ul>
+                            @foreach ($report->stocks as $stock)
+                                <li class="mb-2">
+                                    {{ $stock->type === 'entry' ? 'Ajout' : ($stock->type === 'exit' ? 'Retrait' : 'Ajustement') }} :
+                                    {{ $stock->quantity }} unités
+                                </li>
+                            @endforeach
+                        </ul>
+                        <div class="mt-4 flex justify-end">
+                            <button class="bg-blue-500 hover:bg-blue-700 text-white py-1 px-4 rounded-lg" onclick="hideModal('stocks-modal-{{ $report->id }}')">Fermer</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endforeach
     </div>
 </div>
+
+<!-- Scripts pour gérer les modals -->
+<script>
+    function showModal(modalId) {
+        document.getElementById(modalId).classList.remove('hidden');
+    }
+
+    function hideModal(modalId) {
+        document.getElementById(modalId).classList.add('hidden');
+    }
+</script>
 @endsection

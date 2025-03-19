@@ -11,7 +11,9 @@
     <!-- Tailwind CSS -->
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <!-- Fichier CSS personnalisé -->
-    <link rel="stylesheet" href="/build/assets/app-CgsYglp5.css">
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+
 
 
     @stack('styles') <!-- Pour les styles spécifiques à la page -->
