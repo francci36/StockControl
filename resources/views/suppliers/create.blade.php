@@ -4,10 +4,10 @@
 
 @section('content')
 <div class="container mx-auto py-6">
-    <div class="bg-white shadow-md rounded-lg">
+    <div class="bg-white dark:bg-gray-800 shadow-md rounded-lg">
         <!-- Titre de la page -->
-        <div class="px-6 py-4 border-b border-gray-200 bg-blue-100 rounded-t-lg">
-            <h1 class="text-2xl font-semibold text-blue-700 flex items-center">
+        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-blue-100 dark:bg-blue-900 rounded-t-lg">
+            <h1 class="text-2xl font-semibold text-blue-700 dark:text-blue-400 flex items-center">
                 <i class="fas fa-user-plus mr-2"></i> Ajouter un fournisseur
             </h1>
         </div>
@@ -17,16 +17,16 @@
             <form method="POST" action="{{ route('suppliers.store') }}" class="space-y-4">
                 @csrf
                 <div>
-                    <label for="name" class="block text-gray-700 font-medium">Nom</label>
-                    <input type="text" name="name" id="name" class="form-input mt-1 block w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-300" required>
+                    <label for="name" class="block text-gray-700 dark:text-gray-200 font-medium">Nom</label>
+                    <input type="text" name="name" id="name" class="form-input mt-1 block w-full border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-500" required>
                 </div>
                 <div>
-                    <label for="email" class="block text-gray-700 font-medium">Email</label>
-                    <input type="email" name="email" id="email" class="form-input mt-1 block w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-300" required>
+                    <label for="email" class="block text-gray-700 dark:text-gray-200 font-medium">Email</label>
+                    <input type="email" name="email" id="email" class="form-input mt-1 block w-full border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-500" required>
                 </div>
                 <div>
-                    <label for="telephone" class="block text-gray-700 font-medium">Téléphone</label>
-                    <input type="text" name="telephone" id="telephone" class="form-input mt-1 block w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-300" required>
+                    <label for="telephone" class="block text-gray-700 dark:text-gray-200 font-medium">Téléphone</label>
+                    <input type="text" name="telephone" id="telephone" class="form-input mt-1 block w-full border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-500" required>
                 </div>
                 
                 <div class="flex justify-end">

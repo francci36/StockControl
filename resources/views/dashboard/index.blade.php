@@ -207,6 +207,9 @@
 <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment/dist/chartjs-adapter-moment.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
+        // Vérifier si le mode sombre est activé
+        const isDarkMode = document.documentElement.classList.contains('dark');
+
         // Données initiales pour les graphiques
         let stockData = @json($stockData); // Assurez-vous que $stockData est bien défini côté serveur
         let labels = stockData.map(data => data.produit);
@@ -226,6 +229,12 @@
         // Générer les couleurs dynamiques en fonction des quantités
         let backgroundColors = quantities.map(getColor);
 
+        // Couleurs dynamiques pour les axes et les grilles
+        const gridColor = isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+        const tickColor = isDarkMode ? 'rgba(255, 255, 255, 0.8)' : 'rgba(0, 0, 0, 0.8)';
+        const tooltipBackgroundColor = isDarkMode ? 'rgba(0, 0, 0, 0.8)' : 'rgba(255, 255, 255, 0.8)';
+        const tooltipTextColor = isDarkMode ? 'rgba(255, 255, 255, 0.8)' : 'rgba(0, 0, 0, 0.8)';
+
         // Graphique des stocks (barres)
         const ctxStock = document.getElementById('stockChart').getContext('2d');
         const stockChart = new Chart(ctxStock, {
@@ -236,7 +245,7 @@
                     label: 'Quantité en stock',
                     data: quantities,
                     backgroundColor: backgroundColors,
-                    borderColor: 'rgba(60,141,188,0.8)',
+                    borderColor: isDarkMode ? 'rgba(75, 192, 192, 0.8)' : 'rgba(75, 192, 192, 0.8)',
                     borderWidth: 1
                 }]
             },
@@ -247,17 +256,26 @@
                     y: {
                         beginAtZero: true,
                         grid: {
-                            color: 'rgba(0, 0, 0, 0.1)'
+                            color: gridColor,
+                        },
+                        ticks: {
+                            color: tickColor,
                         }
                     },
                     x: {
                         grid: {
-                            color: 'rgba(0, 0, 0, 0.1)'
+                            color: gridColor,
+                        },
+                        ticks: {
+                            color: tickColor,
                         }
                     }
                 },
                 plugins: {
                     tooltip: {
+                        backgroundColor: tooltipBackgroundColor,
+                        titleColor: tooltipTextColor,
+                        bodyColor: tooltipTextColor,
                         callbacks: {
                             label: function(context) {
                                 return `Quantité: ${context.raw}`;
@@ -278,7 +296,7 @@
                     label: 'Répartition des stocks',
                     data: quantities,
                     backgroundColor: backgroundColors,
-                    borderColor: 'rgba(255, 255, 255, 0.8)',
+                    borderColor: isDarkMode ? 'rgba(255, 255, 255, 0.8)' : 'rgba(255, 255, 255, 0.8)',
                     borderWidth: 1
                 }]
             },
@@ -288,8 +306,14 @@
                 plugins: {
                     legend: {
                         position: 'top',
+                        labels: {
+                            color: tickColor,
+                        }
                     },
                     tooltip: {
+                        backgroundColor: tooltipBackgroundColor,
+                        titleColor: tooltipTextColor,
+                        bodyColor: tooltipTextColor,
                         callbacks: {
                             label: function(context) {
                                 return `Quantité: ${context.raw}`;
@@ -319,11 +343,28 @@
                 maintainAspectRatio: false,
                 scales: {
                     y: {
-                        beginAtZero: true
+                        beginAtZero: true,
+                        grid: {
+                            color: gridColor,
+                        },
+                        ticks: {
+                            color: tickColor,
+                        }
+                    },
+                    x: {
+                        grid: {
+                            color: gridColor,
+                        },
+                        ticks: {
+                            color: tickColor,
+                        }
                     }
                 },
                 plugins: {
                     tooltip: {
+                        backgroundColor: tooltipBackgroundColor,
+                        titleColor: tooltipTextColor,
+                        bodyColor: tooltipTextColor,
                         callbacks: {
                             label: function(context) {
                                 return `Transactions: ${context.raw}`;

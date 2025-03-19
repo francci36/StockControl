@@ -9,10 +9,20 @@ export default {
         './resources/views/**/*.blade.php',
     ],
 
+    darkMode: 'class', // Active le mode sombre basé sur la classe
+
     theme: {
         extend: {
             fontFamily: {
                 sans: ['Figtree', ...defaultTheme.fontFamily.sans],
+            },
+            colors: {
+                // Ajoutez des couleurs personnalisées pour le mode sombre
+                dark: {
+                    100: '#1a202c', // Couleur de fond sombre
+                    200: '#2d3748', // Couleur de fond secondaire
+                    300: '#4a5568', // Couleur de fond tertiaire
+                },
             },
         },
     },

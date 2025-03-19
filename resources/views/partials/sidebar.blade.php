@@ -1,4 +1,5 @@
 <aside class="main-sidebar sidebar-dark-primary elevation-4">
+    <!-- Brand Logo -->
     <a href="http://127.0.0.1:8000/dashboard" class="brand-link">
         <span class="brand-text font-weight-light">MonSite</span>
     </a>
@@ -18,7 +19,8 @@
             </div>
         </div>
         @endauth
-        <!-- Pas besoin d'inclure use_account ici, car il est déjà dans la navbar -->
+
+        <!-- Navigation Menu -->
         <nav class="mt-2">
             <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
                 <li class="nav-item">
@@ -65,5 +67,34 @@
                 </li>
             </ul>
         </nav>
+
+        <!-- Bouton Mode Sombre -->
+        <div class="mt-4 p-3">
+            <button id="darkModeToggle" class="btn btn-outline-secondary btn-block">
+                Activer le Mode Sombre
+            </button>
+        </div>
     </div>
 </aside>
+
+<script>
+   document.addEventListener('DOMContentLoaded', function () {
+    const darkModeToggle = document.getElementById('darkModeToggle');
+
+    // Fonction pour activer/désactiver le mode sombre
+    const toggleDarkMode = () => {
+        document.documentElement.classList.toggle('dark');
+        localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+    };
+
+    // Appliquer le thème sauvegardé au chargement de la page
+    if (localStorage.getItem('theme') === 'dark') {
+        document.documentElement.classList.add('dark');
+    }
+
+    // Ajouter l'événement au bouton de bascule
+    if (darkModeToggle) {
+        darkModeToggle.addEventListener('click', toggleDarkMode);
+    }
+});
+</script>
