@@ -87,7 +87,8 @@ Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])->name(
 
 // Routes de profil
 Route::middleware(['auth'])->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit'); // GET for displaying the profile page
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update'); // PATCH for updating the profile
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy'); // DELETE for deleting the account
 });
+

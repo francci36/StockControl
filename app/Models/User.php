@@ -9,10 +9,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class User extends Authenticatable
 {
     use HasFactory, Notifiable;
+
     protected $fillable = [
         'name',
         'email',
         'password',
+        'profile_photo_url', // Add this field for profile photo uploads
     ];
 
     protected $hidden = [

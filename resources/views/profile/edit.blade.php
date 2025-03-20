@@ -2,44 +2,70 @@
 
 @extends('layouts.app')
 
-@section('title', 'Modifier le profil')
-
 @section('content')
 <div class="container">
-    <h1>Modifier le profil</h1>
+    <h1 class="mb-4">Modifier le profil</h1>
 
-    <form method="POST" action="{{ route('profile.update') }}">
+    <!-- Success Message -->
+    @if (session('status'))
+        <div class="alert alert-success">
+            {{ session('status') }}
+        </div>
+    @endif
+
+    <!-- Profile Edit Form -->
+    <form action="{{ route('profile.update') }}" method="POST" enctype="multipart/form-data">
         @csrf
-        @method('PATCH')
+        @method('PATCH') <!-- Spoofs a PATCH method -->
 
-        <div class="mb-3">
-            <label for="name" class="form-label">Nom</label>
-            <input type="text" class="form-control" id="name" name="name" value="{{ old('name', auth()->user()->name) }}" required>
+        <!-- Name Field -->
+        <div class="form-group mb-3">
+            <label for="name">Nom</label>
+            <input type="text" name="name" id="name" value="{{ Auth::user()->name }}" class="form-control" required>
         </div>
 
-        <div class="mb-3">
-            <label for="email" class="form-label">Email</label>
-            <input type="email" class="form-control" id="email" name="email" value="{{ old('email', auth()->user()->email) }}" required>
+        <!-- Email Field -->
+        <div class="form-group mb-3">
+            <label for="email">Email</label>
+            <input type="email" name="email" id="email" value="{{ Auth::user()->email }}" class="form-control" required>
         </div>
 
-        <div class="mb-3">
-            <label for="password" class="form-label">Nouveau mot de passe</label>
-            <input type="password" class="form-control" id="password" name="password">
-            <small class="form-text text-muted">Laissez vide si vous ne souhaitez pas changer le mot de passe.</small>
+        <!-- Password Field -->
+        <div class="form-group mb-3">
+            <label for="password">Nouveau mot de passe (Laissez vide si vous ne souhaitez pas changer le mot de passe)</label>
+            <input type="password" name="password" id="password" class="form-control">
         </div>
 
-        <div class="mb-3">
-            <label for="password_confirmation" class="form-label">Confirmer le nouveau mot de passe</label>
-            <input type="password" class="form-control" id="password_confirmation" name="password_confirmation">
+        <!-- Confirm Password Field -->
+        <div class="form-group mb-3">
+            <label for="password_confirmation">Confirmer le nouveau mot de passe</label>
+            <input type="password" name="password_confirmation" id="password_confirmation" class="form-control">
         </div>
 
+        <!-- Profile Photo Upload Field -->
+        <div class="form-group mb-3">
+            <label for="profile_photo">Photo de profil</label>
+            <input type="file" name="profile_photo" id="profile_photo" class="form-control">
+            <p class="text-muted mt-1">Formats acceptés : JPEG, PNG, JPG. Taille maximale : 2 Mo.</p>
+
+            <!-- Display Current Profile Photo -->
+            <div class="mt-3">
+                <label>Photo actuelle :</label>
+                <br>
+                <img src="{{ Auth::user()->profile_photo_url ? asset('storage/' . Auth::user()->profile_photo_url) : 'https://via.placeholder.com/100' }}" 
+                     alt="Photo actuelle" 
+                     class="rounded-circle" width="100" height="100">
+            </div>
+        </div>
+
+        <!-- Submit Button -->
         <button type="submit" class="btn btn-primary">Mettre à jour</button>
     </form>
 
-    <form method="POST" action="{{ route('profile.destroy') }}" class="mt-4">
+    <!-- Delete Account Form -->
+    <form action="{{ route('profile.destroy') }}" method="POST" class="mt-3">
         @csrf
         @method('DELETE')
-
         <button type="submit" class="btn btn-danger">Supprimer le compte</button>
     </form>
 </div>

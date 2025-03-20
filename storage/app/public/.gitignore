@@ -1,2 +1,12 @@
+# Ignore everything
 *
+
+# Do not ignore the storage folder and its contents
+!storage/
+!storage/**
+
+# Do not ignore the public/storage symlink
+!public/storage
+
+# Do not ignore this .gitignore file itself
 !.gitignore
