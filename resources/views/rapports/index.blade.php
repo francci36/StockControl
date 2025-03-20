@@ -41,11 +41,11 @@
             <div class="mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
                     <h4 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">Commandes par statut</h4>
-                    <canvas id="commandesParStatutChart"></canvas>
+                    <canvas id="commandesParStatutChart" width="400" height="200"></canvas>
                 </div>
                 <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
                     <h4 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">Produits en stock</h4>
-                    <canvas id="produitsEnStockChart"></canvas>
+                    <canvas id="produitsEnStockChart" width="400" height="200"></canvas>
                 </div>
             </div>
 
@@ -85,47 +85,130 @@
 <!-- Scripts pour les graphiques -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
+    // Check if Chart.js is loaded
+    if (typeof Chart === "undefined") {
+        console.error("Chart.js is not loaded.");
+    }
+
     // Graphique des commandes par statut
-    const commandesParStatutCtx = document.getElementById('commandesParStatutChart').getContext('2d');
-    new Chart(commandesParStatutCtx, {
-        type: 'pie',
-        data: {
-            labels: {!! json_encode($commandesParStatut->pluck('status')) !!},
-            datasets: [{
-                data: {!! json_encode($commandesParStatut->pluck('count')) !!},
-                backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56'],
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    position: 'top',
+    const commandesParStatutElement = document.getElementById('commandesParStatutChart');
+    if (commandesParStatutElement) {
+        const commandesParStatutCtx = commandesParStatutElement.getContext('2d');
+        new Chart(commandesParStatutCtx, {
+            type: 'pie',
+            data: {
+                labels: {!! json_encode($commandesParStatut->pluck('status')) !!} || [],
+                datasets: [{
+                    data: {!! json_encode($commandesParStatut->pluck('count')) !!} || [],
+                    backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40'],
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: {
+                            font: {
+                                size: 14,
+                                family: 'Arial',
+                            },
+                        },
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.label || '';
+                                const value = context.raw || 0;
+                                return `${label}: ${value} commandes`;
+                            }
+                        }
+                    },
+                },
+                animation: {
+                    animateScale: true,
+                    animateRotate: true,
                 },
             },
-        },
-    });
+        });
+    } else {
+        console.warn("Element with ID 'commandesParStatutChart' not found.");
+    }
 
     // Graphique des produits en stock
-    const produitsEnStockCtx = document.getElementById('produitsEnStockChart').getContext('2d');
-    new Chart(produitsEnStockCtx, {
-        type: 'bar',
-        data: {
-            labels: {!! json_encode($produitsEnStock->pluck('product.name')) !!},
-            datasets: [{
-                label: 'Quantité en stock',
-                data: {!! json_encode($produitsEnStock->pluck('quantity')) !!},
-                backgroundColor: '#4CAF50',
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    display: false,
+    const produitsEnStockElement = document.getElementById('produitsEnStockChart');
+    if (produitsEnStockElement) {
+        const produitsEnStockCtx = produitsEnStockElement.getContext('2d');
+        new Chart(produitsEnStockCtx, {
+            type: 'bar',
+            data: {
+                labels: {!! json_encode($produitsEnStock->pluck('product.name')) !!} || [],
+                datasets: [{
+                    label: 'Quantité en stock',
+                    data: {!! json_encode($produitsEnStock->pluck('quantity')) !!} || [],
+                    backgroundColor: ['#4CAF50', '#FF5722', '#FFC107', '#03A9F4', '#9C27B0'],
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            font: {
+                                size: 12,
+                                family: 'Arial',
+                            },
+                        },
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `Quantité: ${context.raw}`;
+                            }
+                        }
+                    },
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Produits',
+                            font: {
+                                size: 14,
+                                family: 'Arial',
+                            },
+                        },
+                        grid: {
+                            borderColor: '#ccc',
+                        },
+                    },
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Quantité',
+                            font: {
+                                size: 14,
+                                family: 'Arial',
+                            },
+                        },
+                        grid: {
+                            color: '#f0f0f0',
+                        },
+                    },
+                },
+                animation: {
+                    duration: 1500,
+                    easing: 'easeOutBounce',
                 },
             },
-        },
-    });
+        });
+    } else {
+        console.warn("Element with ID 'produitsEnStockChart' not found.");
+    }
 </script>
+
 @endsection
