@@ -84,10 +84,10 @@
             <div id="transactions-modal-{{ $report->id }}" class="hidden fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center z-50 p-4">
                 <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg w-full max-w-3xl max-h-[90vh] overflow-y-auto">
                     <div class="p-6">
-                        <h2 class="text-lg font-bold mb-4 text-gray-800 dark:text-gray-100">Transactions associées au {{ $report->name }}</h2>
+                        <h2 class="text-lg font-bold mb-4 text-gray-800 dark:text-gray-400">Transactions associées au {{ $report->name }}</h2>
                         <ul>
                             @foreach ($report->transactions as $transaction)
-                                <li class="mb-2 text-gray-800 dark:text-gray-400">
+                                <li class="mb-2 text-gray-800 dark:text-black-200">
                                     {{ $transaction->type === 'entry' ? 'Entrée' : 'Sortie' }} :
                                     {{ $transaction->quantity }} unités à {{ number_format($transaction->price, 2) }} €
                                 </li>
@@ -104,10 +104,10 @@
             <div id="stocks-modal-{{ $report->id }}" class="hidden fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center z-50 p-4">
                 <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg w-full max-w-3xl max-h-[90vh] overflow-y-auto">
                     <div class="p-6">
-                        <h2 class="text-lg font-bold mb-4 text-gray-800 dark:text-gray-100">Stocks associés au {{ $report->name }}</h2>
+                        <h2 class="text-lg font-bold mb-4 text-gray-800 dark:text-gray-400">Stocks associés au {{ $report->name }}</h2>
                         <ul>
                             @foreach ($report->stocks as $stock)
-                                <li class="mb-2 text-gray-800 dark:text-gray-400">
+                                <li class="mb-2 text-gray-800 dark:text-black-200">
                                     {{ $stock->type === 'entry' ? 'Ajout' : ($stock->type === 'exit' ? 'Retrait' : 'Ajustement') }} :
                                     {{ $stock->quantity }} unités
                                 </li>

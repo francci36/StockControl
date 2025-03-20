@@ -75,7 +75,7 @@ class ProductController extends Controller
     public function index()
     {
         // Récupérer tous les produits et leurs fournisseurs associés
-        $products = Product::with('supplier')->get();
+        $products = Product::with('supplier')->paginate(20); // Remplacez 10 par le nombre d'éléments à afficher par page
         
         // Retourner la vue index des produits
         return view('products.index', compact('products'));

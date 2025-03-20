@@ -17,7 +17,7 @@
 
                 <!-- Champ pour utilisateur -->
                 <div>
-                    <label for="user_id" class="block text-gray-700 dark:text-gray-200 font-medium">Utilisateur</label>
+                    <label for="user_id" class="block text-gray-700 dark:text-gray-600 font-medium">Utilisateur</label>
                     <select name="user_id" id="user_id" class="form-select mt-1 block w-full border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-500" required disabled>
                         <option value="{{ auth()->id() }}">{{ auth()->user()->name }}</option>
                     </select>
@@ -26,7 +26,7 @@
 
                 <!-- Champ pour fournisseur -->
                 <div>
-                    <label for="supplier_id" class="block text-gray-700 dark:text-gray-200 font-medium">Fournisseur</label>
+                    <label for="supplier_id" class="block text-gray-700 dark:text-gray-600 font-medium">Fournisseur</label>
                     <select name="supplier_id" id="supplier_id" class="form-select mt-1 block w-full border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-500" required disabled>
                         <option value="{{ $supplier_id }}">{{ \App\Models\Supplier::find($supplier_id)->name }}</option>
                     </select>
@@ -35,13 +35,13 @@
 
                 <!-- Champ pour la date -->
                 <div>
-                    <label for="date" class="block text-gray-700 dark:text-gray-200 font-medium">Date</label>
+                    <label for="date" class="block text-gray-700 dark:text-gray-600 font-medium">Date</label>
                     <input type="date" name="date" id="date" class="form-input mt-1 block w-full border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-500" required>
                 </div>
 
                 <!-- Section des éléments de commande -->
                 <div>
-                    <label for="items" class="block text-gray-700 dark:text-gray-200 font-medium">Éléments de commande</label>
+                    <label for="items" class="block text-gray-700 dark:text-gray-600 font-medium">Éléments de commande</label>
                     <div id="items" class="space-y-4">
                         <div class="flex items-center space-x-4 item">
                             <select name="items[0][product_id]" class="form-select mt-1 flex-1 border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-500" required>

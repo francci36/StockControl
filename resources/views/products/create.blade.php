@@ -17,7 +17,7 @@
 
                 <!-- Champ Nom -->
                 <div>
-                    <label for="name" class="block text-gray-700 dark:text-gray-200 font-medium">Nom du fournisseur</label>
+                    <label for="name" class="block text-gray-700 dark:text-gray-600 font-medium">Nom du fournisseur</label>
                     <input type="text" id="name" value="{{ $supplier->name }}" 
                            class="form-input mt-1 block w-full border-gray-300 dark:border-gray-600 rounded-lg bg-gray-100 dark:bg-gray-700 dark:text-gray-200" readonly>
                     <input type="hidden" name="supplier_id" value="{{ $supplier->id }}">
@@ -25,29 +25,29 @@
 
                 <!-- Champ Email -->
                 <div>
-                    <label for="email" class="block text-gray-700 dark:text-gray-200 font-medium">Email</label>
+                    <label for="email" class="block text-gray-700 dark:text-gray-600 font-medium">Email</label>
                     <input type="email" id="email" value="{{ $supplier->email }}" 
                            class="form-input mt-1 block w-full border-gray-300 dark:border-gray-600 rounded-lg bg-gray-100 dark:bg-gray-700 dark:text-gray-200" readonly>
                 </div>
 
                 <!-- Champ Téléphone -->
                 <div>
-                    <label for="telephone" class="block text-gray-700 dark:text-gray-200 font-medium">Téléphone</label>
+                    <label for="telephone" class="block text-gray-700 dark:text-gray-600 font-medium">Téléphone</label>
                     <input type="text" id="telephone" value="{{ $supplier->telephone }}" 
                            class="form-input mt-1 block w-full border-gray-300 dark:border-gray-600 rounded-lg bg-gray-100 dark:bg-gray-700 dark:text-gray-200" readonly>
                 </div>
 
                 <!-- Produits -->
                 <div id="products-section">
-                    <label class="block text-gray-700 dark:text-gray-200 font-medium">Produits</label>
+                    <label class="block text-gray-700 dark:text-gray-600 font-medium">Produits</label>
 
                     <!-- Produit par défaut -->
-                    <div class="product-item flex items-center space-x-4">
-                        <input type="text" name="products[0][name]" class="form-input mt-1 flex-1 border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-200" placeholder="Nom du produit" required>
-                        <input type="number" name="products[0][price]" class="form-input mt-1 flex-1 border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-200" placeholder="Prix" required>
-                        <input type="number" name="products[0][stock_threshold]" class="form-input mt-1 flex-1 border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-200" placeholder="Seuil de stock">
-                        <input type="text" name="products[0][description]" class="form-input mt-1 flex-1 border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-200" placeholder="Description">
-                        <button type="button" class="remove-product bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded-lg">
+                    <div class="product-item flex flex-wrap items-center space-x-4">
+                        <input type="text" name="products[0][name]" class="form-input mt-1 flex-1 w-full sm:w-auto border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-200" placeholder="Nom du produit" required>
+                        <input type="number" name="products[0][price]" class="form-input mt-1 flex-1 w-full sm:w-auto border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-200" placeholder="Prix" required>
+                        <input type="number" name="products[0][stock_threshold]" class="form-input mt-1 flex-1 w-full sm:w-auto border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-200" placeholder="Seuil de stock">
+                        <input type="text" name="products[0][description]" class="form-input mt-1 flex-1 w-full sm:w-auto border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-200" placeholder="Description">
+                        <button type="button" class="remove-product bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded-lg mt-2 sm:mt-0">
                             Supprimer
                         </button>
                     </div>
@@ -76,13 +76,13 @@
 
         // Créer un nouvel élément produit
         const newProduct = document.createElement('div');
-        newProduct.classList.add('product-item', 'flex', 'items-center', 'space-x-4', 'mt-2');
+        newProduct.classList.add('product-item', 'flex', 'flex-wrap', 'items-center', 'space-x-4', 'mt-2');
         newProduct.innerHTML = `
-            <input type="text" name="products[${index}][name]" class="form-input mt-1 flex-1 border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-200" placeholder="Nom du produit" required>
-            <input type="number" name="products[${index}][price]" class="form-input mt-1 flex-1 border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-200" placeholder="Prix" required>
-            <input type="number" name="products[${index}][stock_threshold]" class="form-input mt-1 flex-1 border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-200" placeholder="Seuil de stock">
-            <input type="text" name="products[${index}][description]" class="form-input mt-1 flex-1 border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-200" placeholder="Description">
-            <button type="button" class="remove-product bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded-lg">
+            <input type="text" name="products[${index}][name]" class="form-input mt-1 flex-1 w-full sm:w-auto border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-200" placeholder="Nom du produit" required>
+            <input type="number" name="products[${index}][price]" class="form-input mt-1 flex-1 w-full sm:w-auto border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-200" placeholder="Prix" required>
+            <input type="number" name="products[${index}][stock_threshold]" class="form-input mt-1 flex-1 w-full sm:w-auto border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-200" placeholder="Seuil de stock">
+            <input type="text" name="products[${index}][description]" class="form-input mt-1 flex-1 w-full sm:w-auto border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-200" placeholder="Description">
+            <button type="button" class="remove-product bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded-lg mt-2 sm:mt-0">
                 Supprimer
             </button>
         `;

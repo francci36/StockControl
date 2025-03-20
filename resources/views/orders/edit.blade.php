@@ -9,7 +9,7 @@
             @method('PUT')
 
             <div class="form-group mb-4">
-                <label for="supplier_id" class="block text-gray-700 dark:text-gray-200 font-medium">Fournisseur</label>
+                <label for="supplier_id" class="block text-gray-700 dark:text-gray-600 font-medium">Fournisseur</label>
                 <select name="supplier_id" id="supplier_id" class="form-control mt-1 block w-full border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-500">
                     @foreach($suppliers as $supplier)
                         <option value="{{ $supplier->id }}" {{ $order->supplier_id == $supplier->id ? 'selected' : '' }}>
@@ -20,12 +20,12 @@
             </div>
 
             <div class="form-group mb-4">
-                <label for="date" class="block text-gray-700 dark:text-gray-200 font-medium">Date</label>
+                <label for="date" class="block text-gray-700 dark:text-gray-600 font-medium">Date</label>
                 <input type="date" name="date" id="date" class="form-control mt-1 block w-full border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-500" value="{{ $order->date->format('Y-m-d') }}">
             </div>
 
             <div class="form-group mb-4">
-                <label for="status" class="block text-gray-700 dark:text-gray-200 font-medium">Statut</label>
+                <label for="status" class="block text-gray-700 dark:text-gray-600 font-medium">Statut</label>
                 <select name="status" id="status" class="form-control mt-1 block w-full border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-500">
                     <option value="en cours" {{ $order->status == 'en cours' ? 'selected' : '' }}>En cours</option>
                     <option value="terminé" {{ $order->status == 'terminé' ? 'selected' : '' }}>Terminé</option>
@@ -37,7 +37,7 @@
             <div id="products" class="space-y-4">
                 @foreach($order->items as $item)
                     <div class="product form-group">
-                        <label for="product_id_{{ $item->id }}" class="block text-gray-700 dark:text-gray-200 font-medium">Produit</label>
+                        <label for="product_id_{{ $item->id }}" class="block text-gray-700 dark:text-gray-600 font-medium">Produit</label>
                         <select name="items[{{ $item->id }}][product_id]" id="product_id_{{ $item->id }}" class="form-control mt-1 block w-full border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-500">
                             @foreach($products as $product)
                                 <option value="{{ $product->id }}" {{ $item->product_id == $product->id ? 'selected' : '' }}>
@@ -46,7 +46,7 @@
                             @endforeach
                         </select>
 
-                        <label for="quantity_{{ $item->id }}" class="block text-gray-700 dark:text-gray-200 font-medium">Quantité</label>
+                        <label for="quantity_{{ $item->id }}" class="block text-gray-700 dark:text-gray-600 font-medium">Quantité</label>
                         <input type="number" name="items[{{ $item->id }}][quantity]" id="quantity_{{ $item->id }}" class="form-control mt-1 block w-full border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-500" value="{{ $item->quantity }}">
                     </div>
                 @endforeach

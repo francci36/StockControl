@@ -17,7 +17,7 @@ class OrderController extends Controller
      */
     public function index()
     {
-        $orders = Order::with(['user', 'supplier', 'products'])->paginate(10); // Pagination
+        $orders = Order::with(['user', 'supplier', 'products'])->paginate(20); // Pagination
         return view('orders.index', compact('orders'));
     }
 

@@ -25,7 +25,7 @@
                 <th>Nom</th>
                 <th>Description</th>
                 <th>Prix</th>
-                <th>Quantité</th>
+              
                 <th>Fournisseur</th>
             </tr>
         </thead>
@@ -35,7 +35,7 @@
                     <td>{{ $product->name }}</td>
                     <td>{{ $product->description }}</td>
                     <td>{{ number_format($product->price, 2, ',', ' ') }} €</td>
-                    <td>{{ $product->quantity }}</td>
+                    
                     <td>{{ optional($product->supplier)->name }}</td>
                 </tr>
             @empty
@@ -45,5 +45,9 @@
             @endforelse
         </tbody>
     </table>
+     <!-- Pagination -->
+     <div class="mt-4 d-flex justify-content-center">
+        {{ $products->links() }}
+    </div>
 </div>
 @endsection

@@ -18,15 +18,15 @@
                 @csrf
                 @method('PATCH')
                 <div>
-                    <label for="name" class="block text-gray-700 dark:text-gray-200 font-medium">Nom</label>
+                    <label for="name" class="block text-gray-700 dark:text-gray-600 font-medium">Nom</label>
                     <input type="text" name="name" id="name" class="form-input mt-1 block w-full border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-500" value="{{ $supplier->name }}" required>
                 </div>
                 <div>
-                    <label for="email" class="block text-gray-700 dark:text-gray-200 font-medium">Email</label>
+                    <label for="email" class="block text-gray-700 dark:text-gray-600 font-medium">Email</label>
                     <input type="email" name="email" id="email" class="form-input mt-1 block w-full border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-500" value="{{ $supplier->email }}" required>
                 </div>
                 <div>
-                    <label for="telephone" class="block text-gray-700 dark:text-gray-200 font-medium">Téléphone</label>
+                    <label for="telephone" class="block text-gray-700 dark:text-gray-600 font-medium">Téléphone</label>
                     <input type="text" name="telephone" id="telephone" class="form-input mt-1 block w-full border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-500" value="{{ $supplier->telephone }}" required>
                 </div>
                 <div class="flex justify-end">

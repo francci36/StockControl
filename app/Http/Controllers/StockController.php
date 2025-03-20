@@ -11,7 +11,7 @@ class StockController extends Controller
     public function index()
     {
         // Récupérer les enregistrements de la table stocks avec les produits associés et ajouter la pagination
-        $stocks = Stock::with('product')->paginate(10); // Remplacez 10 par le nombre d'éléments à afficher par page
+        $stocks = Stock::with('product')->paginate(20); // Remplacez 10 par le nombre d'éléments à afficher par page
 
         // Log pour vérifier les données
         Log::info('Stocks récupérés : ', $stocks->items());
