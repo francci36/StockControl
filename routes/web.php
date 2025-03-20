@@ -33,6 +33,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/products/create/{supplier_id}', [ProductController::class, 'create'])->name('products.create');
     Route::post('/products', [ProductController::class, 'store'])->name('products.store');
     Route::delete('/products/{product}', [ProductController::class, 'destroy'])->name('products.destroy');
+    Route::get('/api/products/{supplier_id}', [OrderController::class, 'getProductsBySupplier']);
 });
 
 // Routes pour le tableau de bord et les autres fonctionnalités
@@ -57,6 +58,7 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/orders/{id}', [OrderController::class, 'update'])->name('orders.update');
     Route::delete('/orders/{id}', [OrderController::class, 'destroy'])->name('orders.destroy');
     Route::patch('/orders/{id}/updateStatus', [OrderController::class, 'updateStatus'])->name('orders.updateStatus');
+    Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
 
     // routes/suppliers.php
     Route::get('/suppliers', [SupplierController::class, 'index'])->name('suppliers.index');

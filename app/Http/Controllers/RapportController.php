@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Models\Transaction;
 use App\Models\Stock;
 use App\Models\Report;
+use App\Models\Order;
+use App\Models\Supplier;
 use Illuminate\Support\Facades\DB;
 
 class RapportController extends Controller
@@ -24,21 +26,54 @@ class RapportController extends Controller
         $seuilCritique = config('inventory.stock_critique', 10);
         $stockCritique = Stock::where('quantity', '<=', $seuilCritique)->count();
 
+        // Calcul du nombre total de commandes
+        $totalCommandes = Order::count();
+
+        // Calcul des commandes par statut
+        $commandesParStatut = Order::selectRaw('status, count(*) as count')
+            ->groupBy('status')
+            ->get();
+
+        // Calcul des produits en stock (pour le graphique)
+        $produitsEnStock = Stock::with('product')
+            ->orderBy('quantity', 'desc')
+            ->limit(10)
+            ->get();
+
+        // Mise à jour des montants totaux pour toutes les commandes
+        $orders = Order::with('orderItems')->get();
+        foreach ($orders as $order) {
+            $order->total_amount = $order->calculateTotalAmount();
+            $order->save();
+        }
+
+        // Calcul des statistiques des fournisseurs
+        $fournisseurs = Supplier::withCount('orders')
+            ->withSum('orders', 'total_amount')
+            ->get();
+
         // Pagination des rapports avec les transactions et les stocks associés
         $reports = Report::with([
             'transactions' => function ($query) {
-                $query->whereIn('type', ['entry', 'exit']); // Inclure les deux types de transactions
+                $query->whereIn('type', ['entry', 'exit']);
             },
             'stocks'
         ])->paginate(10);
 
         // Passer les données à la vue
-        return view('rapports.index', compact('chiffreAffaires', 'stockCritique', 'reports'));
+        return view('rapports.index', compact(
+            'chiffreAffaires',
+            'stockCritique',
+            'totalCommandes',
+            'commandesParStatut',
+            'produitsEnStock',
+            'fournisseurs',
+            'reports'
+        ));
     }
 
     private function updateReports()
     {
-        // Récupérer ou créer le rapport des ventes
         $rapportVentes = Report::firstOrCreate([
             'name' => 'Rapport des Ventes',
             'description' => 'Analyse des ventes mensuelles',
@@ -47,7 +82,6 @@ class RapportController extends Controller
             'updated_at' => now(),
         ]);
 
-        // Récupérer ou créer le rapport des stocks
         $rapportStocks = Report::firstOrCreate([
             'name' => 'Rapport des Stocks',
             'description' => 'État des stocks actuels',
@@ -56,20 +90,17 @@ class RapportController extends Controller
             'updated_at' => now(),
         ]);
 
-        // Associer les transactions de type 'exit' au rapport des ventes
         Transaction::where('type', 'exit')
-            ->whereNull('report_id') // Associer uniquement les transactions sans rapport
+            ->whereNull('report_id')
             ->update(['report_id' => $rapportVentes->id]);
 
-        // Associer les transactions de type 'entry' au rapport des stocks
         Transaction::where('type', 'entry')
-            ->whereNull('report_id') // Associer uniquement les transactions sans rapport
+            ->whereNull('report_id')
             ->update(['report_id' => $rapportStocks->id]);
 
-        // Associer les stocks critiques au rapport des stocks
         $seuilCritique = config('inventory.stock_critique', 10);
         Stock::where('quantity', '<=', $seuilCritique)
-            ->whereNull('report_id') // Éviter les doublons
+            ->whereNull('report_id')
             ->update(['report_id' => $rapportStocks->id]);
     }
 }

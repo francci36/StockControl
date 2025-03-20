@@ -27,10 +27,11 @@
                 <!-- Champ pour fournisseur -->
                 <div>
                     <label for="supplier_id" class="block text-gray-700 dark:text-gray-600 font-medium">Fournisseur</label>
-                    <select name="supplier_id" id="supplier_id" class="form-select mt-1 block w-full border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-500" required disabled>
-                        <option value="{{ $supplier_id }}">{{ \App\Models\Supplier::find($supplier_id)->name }}</option>
+                    <select name="supplier_id" id="supplier_id" class="form-select mt-1 block w-full border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-500" required>
+                        @foreach($suppliers as $supplier)
+                            <option value="{{ $supplier->id }}">{{ $supplier->name }}</option>
+                        @endforeach
                     </select>
-                    <input type="hidden" name="supplier_id" value="{{ $supplier_id }}">
                 </div>
 
                 <!-- Champ pour la date -->
@@ -46,7 +47,7 @@
                         <div class="flex items-center space-x-4 item">
                             <select name="items[0][product_id]" class="form-select mt-1 flex-1 border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-500" required>
                                 @foreach($products as $product)
-                                <option value="{{ $product->id }}">{{ $product->name }}</option>
+                                    <option value="{{ $product->id }}">{{ $product->name }}</option>
                                 @endforeach
                             </select>
                             <input type="number" name="items[0][quantity]" class="form-input mt-1 flex-1 border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-500" placeholder="Quantité" required>
@@ -77,12 +78,30 @@
         newItem.innerHTML = `
             <select name="items[${itemCount}][product_id]" class="form-select mt-1 flex-1 border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-500" required>
                 @foreach($products as $product)
-                <option value="{{ $product->id }}">{{ $product->name }}</option>
+                    <option value="{{ $product->id }}">{{ $product->name }}</option>
                 @endforeach
             </select>
             <input type="number" name="items[${itemCount}][quantity]" class="form-input mt-1 flex-1 border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-500" placeholder="Quantité" required>
         `;
         itemContainer.appendChild(newItem);
+    });
+
+    document.getElementById('supplier_id').addEventListener('change', function() {
+        const supplierId = this.value;
+        fetch(`/api/products/${supplierId}`)
+            .then(response => response.json())
+            .then(data => {
+                const productSelects = document.querySelectorAll('select[name^="items"]');
+                productSelects.forEach(select => {
+                    select.innerHTML = '';
+                    data.forEach(product => {
+                        const option = document.createElement('option');
+                        option.value = product.id;
+                        option.textContent = product.name;
+                        select.appendChild(option);
+                    });
+                });
+            });
     });
 </script>
 @endsection

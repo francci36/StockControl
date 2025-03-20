@@ -3,9 +3,10 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Casts\Attribute; // Importation manquante
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Carbon\Carbon;
 
 class Order extends Model
@@ -20,6 +21,7 @@ class Order extends Model
         'supplier_id',
         'status',
         'date',
+        'total_amount',
     ];
 
     /**
@@ -64,6 +66,16 @@ class Order extends Model
     }
 
     /**
+     * Relation avec les items de commande.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function orderItems(): HasMany
+    {
+        return $this->hasMany(OrderItem::class);
+    }
+
+    /**
      * Accesseur pour formater la date.
      *
      * @return \Illuminate\Database\Eloquent\Casts\Attribute
@@ -97,5 +109,17 @@ class Order extends Model
         return Attribute::make(
             get: fn ($value, $attributes) => $attributes['status'] === 'completed',
         );
+    }
+
+    /**
+     * Méthode pour recalculer `total_amount` depuis `orderItems`.
+     *
+     * @return float
+     */
+    public function calculateTotalAmount(): float
+    {
+        return $this->orderItems->sum(function ($item) {
+            return $item->quantity * $item->price;
+        });
     }
 }

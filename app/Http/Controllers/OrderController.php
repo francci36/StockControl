@@ -168,4 +168,24 @@ class OrderController extends Controller
             ]);
         }
     }
+
+    /**
+     * Récupère les produits d'un fournisseur.
+     */
+    public function getProductsBySupplier($supplierId)
+    {
+        $products = Product::where('supplier_id', $supplierId)->get();
+        return response()->json($products);
+    }
+
+    /**
+     * Affiche les détails d'une commande.
+     */
+    public function show(Order $order)
+    {
+        // Chargement des relations
+        $order->load('user', 'supplier', 'products');
+        
+        return view('orders.show', compact('order'));
+    }
 }

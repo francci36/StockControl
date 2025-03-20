@@ -40,6 +40,11 @@
                             </td>
                             <td class="border px-4 py-2">
                                 <div class="flex gap-2">
+                                    <!-- Lien pour voir les détails de la commande -->
+                                    <a href="{{ route('orders.show', $order->id) }}" class="bg-blue-500 hover:bg-blue-700 text-white text-sm font-bold py-1 px-3 rounded">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+
                                     <!-- Formulaire de mise à jour du statut -->
                                     <form action="{{ route('orders.updateStatus', $order->id) }}" method="POST" class="inline">
                                         @csrf
@@ -52,6 +57,7 @@
                                             <i class="fas fa-sync-alt"></i>
                                         </button>
                                     </form>
+
                                     <!-- Formulaire de suppression -->
                                     <form action="{{ route('orders.destroy', $order->id) }}" method="POST" class="inline">
                                         @csrf
