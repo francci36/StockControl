@@ -69,10 +69,10 @@
         </nav>
 
         <!-- Bouton Mode Sombre -->
-        <div class="mt-4 p-3">
-            <button id="darkModeToggle" class="btn btn-outline-secondary btn-block">
-                Activer le Mode Sombre
-            </button>
+        <div class="mt-4 p-3 d-flex justify-content-center">
+        <button id="darkModeToggle" class="btn btn-outline-secondary w-full truncate">
+            Activer le Mode Sombre
+        </button>
         </div>
     </div>
 </aside>

@@ -40,18 +40,18 @@
             <!-- Section des graphiques -->
             <div class="mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
-                    <h4 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">Commandes par statut</h4>
+                    <h4 class="text-lg font-semibold text-gray-800 dark:text-gray-600 mb-4">Commandes par statut</h4>
                     <canvas id="commandesParStatutChart" width="400" height="200"></canvas>
                 </div>
                 <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
-                    <h4 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">Produits en stock</h4>
+                    <h4 class="text-lg font-semibold text-gray-800 dark:text-gray-600 mb-4">Produits en stock</h4>
                     <canvas id="produitsEnStockChart" width="400" height="200"></canvas>
                 </div>
             </div>
 
             <!-- Section des fournisseurs -->
             <div class="mb-6">
-                <h4 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">Statistiques des fournisseurs</h4>
+                <h4 class="text-lg font-semibold text-gray-800 dark:text-gray-600 mb-4">Statistiques des fournisseurs</h4>
                 <div class="overflow-x-auto">
                     <table class="table-auto w-full border-collapse border border-gray-200 dark:border-gray-700 text-sm">
                         <thead>
@@ -90,10 +90,17 @@
         console.error("Chart.js is not loaded.");
     }
 
+    // Get the current theme (light or dark)
+    const isDarkMode = document.documentElement.classList.contains('dark');
+    const canvasBackgroundColor = isDarkMode ? '#d3d3d3' : '#ffffff'; // Light grey for dark mode, white for light mode.
+    const fontColor = isDarkMode ? '#d3d3d3' : '#000000'; // Adjust font colors accordingly.
+
     // Graphique des commandes par statut
     const commandesParStatutElement = document.getElementById('commandesParStatutChart');
     if (commandesParStatutElement) {
         const commandesParStatutCtx = commandesParStatutElement.getContext('2d');
+        commandesParStatutElement.style.backgroundColor = canvasBackgroundColor; // Set the canvas background dynamically.
+
         new Chart(commandesParStatutCtx, {
             type: 'pie',
             data: {
@@ -112,6 +119,7 @@
                             font: {
                                 size: 14,
                                 family: 'Arial',
+                                color: fontColor, // Adjust legend font color.
                             },
                         },
                     },
@@ -139,6 +147,8 @@
     const produitsEnStockElement = document.getElementById('produitsEnStockChart');
     if (produitsEnStockElement) {
         const produitsEnStockCtx = produitsEnStockElement.getContext('2d');
+        produitsEnStockElement.style.backgroundColor = canvasBackgroundColor; // Set the canvas background dynamically.
+
         new Chart(produitsEnStockCtx, {
             type: 'bar',
             data: {
@@ -159,6 +169,7 @@
                             font: {
                                 size: 12,
                                 family: 'Arial',
+                                color: fontColor, // Adjust legend font color.
                             },
                         },
                     },
@@ -179,10 +190,11 @@
                             font: {
                                 size: 14,
                                 family: 'Arial',
+                                color: fontColor, // Adjust font color for x-axis.
                             },
                         },
                         grid: {
-                            borderColor: '#ccc',
+                            borderColor: isDarkMode ? '#444444' : '#cccccc', // Gridline colors for x-axis.
                         },
                     },
                     y: {
@@ -193,10 +205,11 @@
                             font: {
                                 size: 14,
                                 family: 'Arial',
+                                color: fontColor, // Adjust font color for y-axis.
                             },
                         },
                         grid: {
-                            color: '#f0f0f0',
+                            color: isDarkMode ? '#444444' : '#f0f0f0', // Gridline colors for y-axis.
                         },
                     },
                 },
@@ -210,5 +223,6 @@
         console.warn("Element with ID 'produitsEnStockChart' not found.");
     }
 </script>
+
 
 @endsection

@@ -213,3 +213,9 @@ textarea.form-input {
 .dark .footer {
     @apply bg-gray-800 text-gray-500;
 }
+@media (max-width: 640px) {
+    #darkModeToggle {
+        font-size: 12px; /* Taille de police encore plus petite */
+        padding: 4px 8px; /* Padding réduit */
+    }
+}
