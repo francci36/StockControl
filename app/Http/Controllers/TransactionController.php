@@ -26,40 +26,48 @@ class TransactionController extends Controller
     }
 
     public function store(Request $request)
-    {
-        // Validation des données
-        $request->validate([
-            'product_id' => 'required|exists:products,id',
-            'quantity' => 'required|numeric|min:1',
-            'price' => 'required|numeric|min:0',
-            'type' => 'required|in:entry,exit',
-        ]);
+{
+    // Validation des données
+    $request->validate([
+        'product_id' => 'required|array',
+        'product_id.*' => 'exists:products,id',
+        'quantity' => 'required|array',
+        'quantity.*' => 'numeric|min:1',
+        'price' => 'required|array',
+        'price.*' => 'numeric|min:0',
+        'type' => 'required|in:entry,exit',
+    ]);
 
+    // Boucle pour traiter chaque produit
+    foreach ($request->product_id as $index => $productId) {
         // Création de la transaction
         $transaction = Transaction::create([
-            'product_id' => $request->product_id,
-            'quantity' => $request->quantity,
-            'price' => $request->price,
+            'product_id' => $productId,
+            'quantity' => $request->quantity[$index],
+            'price' => $request->price[$index],
             'type' => $request->type,
         ]);
 
         // Mise à jour du stock
-        $product = Product::findOrFail($request->product_id);
+        $product = Product::findOrFail($productId);
         $stock = Stock::firstOrCreate(['product_id' => $product->id]);
 
         if ($request->type === 'entry') {
             // Ajouter la quantité au stock
-            $stock->quantity += $request->quantity;
+            $stock->quantity += $request->quantity[$index];
         } else {
             // Soustraire la quantité du stock
-            $stock->quantity -= $request->quantity;
+            $stock->quantity -= $request->quantity[$index];
         }
 
         // Sauvegarder le stock mis à jour
         $stock->save();
-
-        return redirect()->route('transactions.index')->with('success', 'Transaction enregistrée avec succès.');
     }
+
+    // Redirection avec un message de succès
+    return redirect()->route('transactions.index')->with('success', 'Transactions enregistrées avec succès.');
+}
+
 }
 
 

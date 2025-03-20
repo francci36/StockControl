@@ -9,29 +9,41 @@
     </h2>
     <form action="{{ route('transactions.store') }}" method="POST" class="space-y-4">
         @csrf
-        <div>
-            <label for="product_id" class="block text-gray-700 dark:text-black-200 font-medium">Produit :</label>
-            <select name="product_id" id="product_id" class="form-select mt-1 block w-full focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-500 rounded-lg bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200" required>
-                @foreach($products as $product)
-                <option value="{{ $product->id }}" data-price="{{ $product->price }}">
-                    {{ $product->name }} ({{ number_format($product->price, 2, ',', ' ') }} €)
-                </option>
-                @endforeach
-            </select>
+        <div class="overflow-x-auto">
+            <table id="transactionTable" class="table-auto w-full border-collapse border border-gray-300">
+                        <thead>
+                            <tr class="bg-gray-100">
+                                <th class="px-4 py-2 border border-gray-300">Produit</th>
+                                <th class="px-4 py-2 border border-gray-300">Quantité</th>
+                                <th class="px-4 py-2 border border-gray-300">Prix Unitaire</th>
+                                <th class="px-4 py-2 border border-gray-300">Total</th>
+                                <th class="px-4 py-2 border border-gray-300">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="px-4 py-2 border border-gray-300">
+                                    <select name="product_id[]" class="form-select w-full">
+                                        @foreach($products as $product)
+                                            <option value="{{ $product->id }}" data-price="{{ $product->price }}">
+                                                {{ $product->name }} ({{ number_format($product->price, 2, ',', ' ') }} €)
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </td>
+                                <td class="px-4 py-2 border border-gray-300"><input type="number" name="quantity[]" class="form-input w-full" required min="1"></td>
+                                <td class="px-4 py-2 border border-gray-300"><input type="number" name="price[]" class="form-input w-full" readonly></td>
+                                <td class="px-4 py-2 border border-gray-300"><input type="number" name="total[]" class="form-input w-full" readonly></td>
+                                <td class="px-4 py-2 border border-gray-300 text-center">
+                                    <button type="button" class="remove-row bg-red-500 text-white p-2 rounded w-full sm:w-auto">Supprimer</button>
+                                </td>
+                            </tr>
+                        </tbody>
+            </table>
         </div>
-        <div>
-            <label for="quantity" class="block text-gray-700 black-black-200 font-medium">Quantité :</label>
-            <input type="number" name="quantity" id="quantity" class="form-input mt-1 block w-full border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200" required min="1">
-        </div>
-        <div>
-            <label for="price" class="block text-gray-700 dark:text-black-200 font-medium">Prix Unitaire :</label>
-            <input type="number" name="price" id="price" class="form-input mt-1 block w-full border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200" step="0.01" required>
-        </div>
-        <div>
-            <label for="total" class="block text-gray-700 dark:text-black-200 font-medium">Total :</label>
-            <input type="number" name="total" id="total" class="form-input mt-1 block w-full border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-500 bg-gray-100 dark:bg-gray-600 text-gray-700 dark:text-gray-200" readonly>
-        </div>
-        <div>
+        <button type="button" id="addRow" class="mt-4 bg-green-500 text-white p-2 rounded">Ajouter une ligne</button>
+
+        <div class="mt-6">
             <label for="type" class="block text-gray-700 dark:text-black-200 font-medium">Type :</label>
             <select name="type" id="type" class="form-select mt-1 block w-full focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-500 rounded-lg bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200">
                 <option value="entry">Entrée</option>
@@ -47,28 +59,43 @@
 </div>
 
 <script>
-    document.getElementById('quantity').addEventListener('input', updateTotal);
-    document.getElementById('price').addEventListener('input', updateTotal);
+    document.getElementById('addRow').addEventListener('click', function () {
+        const table = document.getElementById('transactionTable').getElementsByTagName('tbody')[0];
+        const newRow = table.rows[0].cloneNode(true);
+        newRow.querySelectorAll('input').forEach(input => input.value = '');
+        table.appendChild(newRow);
+    });
 
-    function updateTotal() {
-        const quantity = parseFloat(document.getElementById('quantity').value);
-        const price = parseFloat(document.getElementById('price').value);
-        const total = quantity * price;
-        document.getElementById('total').value = isNaN(total) ? '' : total.toFixed(2);
-    }
+    document.getElementById('transactionTable').addEventListener('click', function (e) {
+        if (e.target.classList.contains('remove-row')) {
+            e.target.closest('tr').remove();
+        }
+    });
 
-    document.getElementById('product_id').addEventListener('change', function () {
-        const selectedProduct = this.options[this.selectedIndex];
-        const price = selectedProduct.getAttribute('data-price');
-        document.getElementById('price').value = price;
-        updateTotal();
+    document.querySelector('#transactionTable').addEventListener('input', function () {
+        document.querySelectorAll('#transactionTable tbody tr').forEach(row => {
+            const quantity = parseFloat(row.querySelector('input[name="quantity[]"]').value);
+            const price = parseFloat(row.querySelector('input[name="price[]"]').value);
+            const total = quantity * price;
+            row.querySelector('input[name="total[]"]').value = isNaN(total) ? '' : total.toFixed(2);
+        });
+    });
+
+    document.querySelector('#transactionTable').addEventListener('change', function (e) {
+        if (e.target.tagName === 'SELECT') {
+            const selectedOption = e.target.options[e.target.selectedIndex];
+            const price = selectedOption.getAttribute('data-price');
+            const row = e.target.closest('tr');
+            row.querySelector('input[name="price[]"]').value = price;
+            row.querySelector('input[name="quantity[]"]').dispatchEvent(new Event('input'));
+        }
     });
 
     document.addEventListener('DOMContentLoaded', function () {
-        const selectedProduct = document.getElementById('product_id').options[0];
-        const price = selectedProduct.getAttribute('data-price');
-        document.getElementById('price').value = price;
-        updateTotal();
+        const firstRow = document.querySelector('#transactionTable tbody tr');
+        const firstOption = firstRow.querySelector('select[name="product_id[]"]').options[0];
+        const price = firstOption.getAttribute('data-price');
+        firstRow.querySelector('input[name="price[]"]').value = price;
     });
 </script>
 @endsection
