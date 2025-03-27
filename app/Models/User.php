@@ -14,6 +14,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role', // Add this field for user roles
         'profile_photo_url', // Add this field for profile photo uploads
     ];
 
@@ -29,5 +30,10 @@ class User extends Authenticatable
     public function orders(): HasMany
     {
         return $this->hasMany(Order::class);
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin';
     }
 }

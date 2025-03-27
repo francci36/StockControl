@@ -4,20 +4,24 @@
         <span class="brand-text font-weight-light">MonSite</span>
     </a>
     <div class="sidebar">
-    @auth
-<!-- User Account -->
-<div class="user-panel mt-3 pb-3 mb-3 d-flex">
-    <div class="image">
-    <img src="{{ asset('storage/profile_photos/I3VCRXOGg7RGFSXf512s0hmSb9Irjq7cAT29A28M.jpg') }}" class="img-circle elevation-2" alt="{{ Auth::user()->name }}">    </div>
-    <div class="info">
-        <a href="{{ route('profile.edit') }}" class="d-block">{{ Auth::user()->name }}</a>
-        <form method="POST" action="{{ route('logout') }}" class="mt-1">
-            @csrf
-            <button type="submit" class="btn btn-danger btn-sm">Déconnexion</button>
-        </form>
-    </div>
-</div>
-@endauth
+        @auth
+        <!-- User Account -->
+        <div class="user-panel mt-3 pb-3 mb-3 d-flex">
+            <div class="image">
+                    <img 
+                        src="{{ Auth::user()->profile_photo_url ? asset('storage/' . Auth::user()->profile_photo_url) : asset('images/default-profile.png') }}" 
+                        class="img-circle elevation-2" 
+                        alt="{{ Auth::user()->name }}">
+            </div>
+            <div class="info">
+                <a href="{{ route('profile.edit') }}" class="d-block">{{ Auth::user()->name }}</a>
+                <form method="POST" action="{{ route('logout') }}" class="mt-1">
+                    @csrf
+                    <button type="submit" class="btn btn-danger btn-sm">Déconnexion</button>
+                </form>
+            </div>
+        </div>
+        @endauth
 
 
         <!-- Navigation Menu -->
