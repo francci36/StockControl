@@ -8,9 +8,11 @@ class AddSupplierIdToProductsTable extends Migration
 {
     public function up()
     {
-        Schema::table('products', function (Blueprint $table) {
-            $table->foreignId('supplier_id')->constrained()->onDelete('cascade');
-        });
+        if (!Schema::hasColumn('products', 'supplier_id')) {
+            Schema::table('products', function (Blueprint $table) {
+                $table->foreignId('supplier_id')->constrained('suppliers')->onDelete('cascade');
+            });
+        }
     }
 
     public function down()

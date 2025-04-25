@@ -49,7 +49,7 @@
                 </div>
             </div>
 
-            <!-- Section des fournisseurs -->
+           <!-- Section des fournisseurs -->
             <div class="mb-6">
                 <h4 class="text-lg font-semibold text-gray-800 dark:text-gray-600 mb-4">Statistiques des fournisseurs</h4>
                 <div class="overflow-x-auto">
@@ -64,9 +64,14 @@
                         <tbody>
                             @forelse ($fournisseurs as $fournisseur)
                             <tr class="hover:bg-gray-100 dark:hover:bg-gray-700 transition duration-200">
+                                <!-- Nom du fournisseur -->
                                 <td class="border px-4 py-2 text-gray-800 dark:text-gray-200">{{ $fournisseur->name }}</td>
+                                <!-- Nombre de commandes -->
                                 <td class="border px-4 py-2 text-gray-800 dark:text-gray-200">{{ $fournisseur->orders_count }}</td>
-                                <td class="border px-4 py-2 text-gray-800 dark:text-gray-200">{{ number_format($fournisseur->orders_sum_total_amount, 2) }} €</td>
+                                <!-- Montant total des achats -->
+                                <td class="border px-4 py-2 text-gray-800 dark:text-gray-200">
+                                    {{ number_format($fournisseur->orders_sum_total_amount ?? 0, 2) }} €
+                                </td>
                             </tr>
                             @empty
                             <tr>
@@ -77,6 +82,7 @@
                     </table>
                 </div>
             </div>
+
         </div>
     </div>
 </div>

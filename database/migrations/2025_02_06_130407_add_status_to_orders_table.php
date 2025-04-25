@@ -13,10 +13,13 @@ class AddStatusToOrdersTable extends Migration
      */
     public function up()
     {
-        Schema::table('orders', function (Blueprint $table) {
-            $table->string('status')->nullable();
-        });
+        if (!Schema::hasColumn('orders', 'status')) {
+            Schema::table('orders', function (Blueprint $table) {
+                $table->string('status')->nullable();
+            });
+        }
     }
+
 
     /**
      * Reverse the migrations.

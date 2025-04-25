@@ -44,7 +44,7 @@
                     <!-- Produit par défaut -->
                     <div class="product-item flex flex-wrap items-center space-x-4">
                         <input type="text" name="products[0][name]" class="form-input mt-1 flex-1 w-full sm:w-auto border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-200" placeholder="Nom du produit" required>
-                        <input type="number" name="products[0][price]" class="form-input mt-1 flex-1 w-full sm:w-auto border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-200" placeholder="Prix" required>
+                        <input type="number" name="products[0][price]" class="form-input mt-1 flex-1 w-full sm:w-auto border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-200" placeholder="Prix" step="0.01" required>
                         <input type="number" name="products[0][stock_threshold]" class="form-input mt-1 flex-1 w-full sm:w-auto border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-200" placeholder="Seuil de stock">
                         <input type="text" name="products[0][description]" class="form-input mt-1 flex-1 w-full sm:w-auto border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-200" placeholder="Description">
                         <button type="button" class="remove-product bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded-lg mt-2 sm:mt-0">
@@ -79,7 +79,7 @@
         newProduct.classList.add('product-item', 'flex', 'flex-wrap', 'items-center', 'space-x-4', 'mt-2');
         newProduct.innerHTML = `
             <input type="text" name="products[${index}][name]" class="form-input mt-1 flex-1 w-full sm:w-auto border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-200" placeholder="Nom du produit" required>
-            <input type="number" name="products[${index}][price]" class="form-input mt-1 flex-1 w-full sm:w-auto border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-200" placeholder="Prix" required>
+            <input type="number" name="products[${index}][price]" class="form-input mt-1 flex-1 w-full sm:w-auto border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-200" placeholder="Prix" step="0.01" required>
             <input type="number" name="products[${index}][stock_threshold]" class="form-input mt-1 flex-1 w-full sm:w-auto border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-200" placeholder="Seuil de stock">
             <input type="text" name="products[${index}][description]" class="form-input mt-1 flex-1 w-full sm:w-auto border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-200" placeholder="Description">
             <button type="button" class="remove-product bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded-lg mt-2 sm:mt-0">

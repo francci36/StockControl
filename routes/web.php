@@ -42,6 +42,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard/transactions-data', [DashboardController::class, 'transactionsData'])->name('dashboard.transactionsData');
 
     Route::get('/stocks', [StockController::class, 'index'])->name('stocks.index');
+    Route::get('/stocks/{stock}/edit', [StockController::class, 'edit'])->name('stocks.edit');
+    Route::put('/stocks/{stock}', [StockController::class, 'update'])->name('stocks.update');
+    Route::delete('/stocks/{stock}', [StockController::class, 'destroy'])->name('stocks.destroy');
     Route::get('/api/stock-data', [DashboardController::class, 'getStockData']);
     Route::get('/dashboard/stock-data', [DashboardController::class, 'getStockData']);
 

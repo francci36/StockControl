@@ -1,11 +1,14 @@
+# Gestion des fins de ligne
 * text=auto eol=lf
 
+# Types de diff pour différents fichiers
 *.blade.php diff=html
 *.css diff=css
 *.html diff=html
 *.md diff=markdown
 *.php diff=php
 
+# Exclusion des fichiers spécifiques lors des exports
 /.github export-ignore
 CHANGELOG.md export-ignore
 .styleci.yml export-ignore

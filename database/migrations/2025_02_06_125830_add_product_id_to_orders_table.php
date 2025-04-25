@@ -13,11 +13,13 @@ class AddProductIdToOrdersTable extends Migration
      */
     public function up()
     {
-        Schema::table('orders', function (Blueprint $table) {
-            $table->unsignedBigInteger('product_id')->nullable();
-            $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
-        });
+        if (!Schema::hasColumn('orders', 'product_id')) {
+            Schema::table('orders', function (Blueprint $table) {
+                $table->foreignId('product_id')->nullable()->constrained('products')->onDelete('cascade');
+            });
+        }
     }
+
 
     /**
      * Reverse the migrations.

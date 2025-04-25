@@ -13,10 +13,13 @@ class AddDescriptionToProductsTable extends Migration
      */
     public function up()
     {
-        Schema::table('products', function (Blueprint $table) {
-            $table->string('description')->nullable();
-        });
+        if (!Schema::hasColumn('products', 'description')) {
+            Schema::table('products', function (Blueprint $table) {
+                $table->string('description')->nullable();
+            });
+        }
     }
+
 
     /**
      * Reverse the migrations.

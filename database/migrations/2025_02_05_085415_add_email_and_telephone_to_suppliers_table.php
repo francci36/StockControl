@@ -14,10 +14,16 @@ class AddEmailAndTelephoneToSuppliersTable extends Migration
     public function up()
     {
         Schema::table('suppliers', function (Blueprint $table) {
-            $table->string('email')->default('example@example.com')->after('name');
-            $table->string('telephone')->default('0000000000')->after('email');
+            if (!Schema::hasColumn('suppliers', 'email')) {
+                $table->string('email')->default('example@example.com')->after('name');
+            }
+
+            if (!Schema::hasColumn('suppliers', 'telephone')) {
+                $table->string('telephone')->nullable()->after('email');
+            }
         });
     }
+
 
     /**
      * Reverse the migrations.

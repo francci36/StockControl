@@ -8,13 +8,13 @@ class AddProductIdToStocksTable extends Migration
 {
     public function up()
     {
-        Schema::table('stocks', function (Blueprint $table) {
-            $table->unsignedBigInteger('product_id')->after('id');
-
-            // Ajoutez la clé étrangère si nécessaire
-            $table->foreign('product_id')->references('id')->on('products');
-        });
+        if (!Schema::hasColumn('stocks', 'product_id')) {
+            Schema::table('stocks', function (Blueprint $table) {
+                $table->foreignId('product_id')->constrained()->onDelete('cascade');
+            });
+        }
     }
+
 
     public function down()
     {

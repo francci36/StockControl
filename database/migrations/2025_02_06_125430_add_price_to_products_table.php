@@ -11,12 +11,15 @@ class AddPriceToProductsTable extends Migration
      *
      * @return void
      */
-    public function up()
+        public function up()
     {
-        Schema::table('products', function (Blueprint $table) {
-            $table->decimal('price', 8, 2)->nullable();
-        });
+        if (!Schema::hasColumn('products', 'price')) {
+            Schema::table('products', function (Blueprint $table) {
+                $table->decimal('price', 8, 2)->nullable();
+            });
+        }
     }
+
 
     /**
      * Reverse the migrations.

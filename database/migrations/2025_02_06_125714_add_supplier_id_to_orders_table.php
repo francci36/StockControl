@@ -13,11 +13,13 @@ class AddSupplierIdToOrdersTable extends Migration
      */
     public function up()
     {
-        Schema::table('orders', function (Blueprint $table) {
-            $table->unsignedBigInteger('supplier_id')->nullable();
-            $table->foreign('supplier_id')->references('id')->on('suppliers')->onDelete('cascade');
-        });
+        if (!Schema::hasColumn('orders', 'supplier_id')) {
+            Schema::table('orders', function (Blueprint $table) {
+                $table->foreignId('supplier_id')->nullable()->constrained('suppliers')->onDelete('cascade');
+            });
+        }
     }
+
 
     /**
      * Reverse the migrations.

@@ -13,11 +13,13 @@ class AddProductIdToCommandesTable extends Migration
      */
     public function up()
     {
-        Schema::table('commandes', function (Blueprint $table) {
-            $table->unsignedBigInteger('product_id')->after('id');
-            $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
-        });
+        if (!Schema::hasColumn('commandes', 'product_id')) {
+            Schema::table('commandes', function (Blueprint $table) {
+                $table->foreignId('product_id')->constrained('products')->onDelete('cascade');
+            });
+        }
     }
+
 
     /**
      * Reverse the migrations.

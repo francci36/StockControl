@@ -12,12 +12,14 @@ return new class extends Migration
     public function up()
     {
         Schema::table('transactions', function (Blueprint $table) {
-            // Vérifie si la clé étrangère existe avant de tenter de la supprimer
+            // Vérifie si la colonne existe avant de tenter de supprimer la clé étrangère
             if (Schema::hasColumn('transactions', 'product_id')) {
-                $table->dropForeign('fk_transactions_product_id'); // Utilise le bon nom
+                // Utilise le nom correct de la clé étrangère
+                $table->dropForeign(['product_id']);
             }
         });
     }
+
 
     public function down()
     {

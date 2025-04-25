@@ -217,7 +217,7 @@
 
         // Fonction pour générer une couleur en fonction de la quantité
         const getColor = (quantity) => {
-            if (quantity < 4) {
+            if (quantity < 5) {
                 return 'rgba(255, 99, 132, 0.9)'; // Rouge : stock critique
             } else if (quantity >= 4 && quantity < 10) {
                 return 'rgba(255, 206, 86, 0.9)'; // Jaune : stock moyen

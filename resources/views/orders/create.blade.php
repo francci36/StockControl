@@ -24,14 +24,13 @@
                     <input type="hidden" name="user_id" value="{{ auth()->id() }}">
                 </div>
 
-                <!-- Champ pour fournisseur -->
+                <!-- Champ pour le fournisseur -->
                 <div>
                     <label for="supplier_id" class="block text-gray-700 dark:text-gray-600 font-medium">Fournisseur</label>
-                    <select name="supplier_id" id="supplier_id" class="form-select mt-1 block w-full border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-500" required>
-                        @foreach($suppliers as $supplier)
-                            <option value="{{ $supplier->id }}">{{ $supplier->name }}</option>
-                        @endforeach
-                    </select>
+                    <!-- Remplacez le champ select par un champ readonly -->
+                    <input type="text" id="supplier_name" value="{{ $supplier->name }}" 
+                        class="form-input mt-1 block w-full border-gray-300 dark:border-gray-600 rounded-lg bg-gray-100 dark:bg-gray-700 dark:text-gray-200" readonly>
+                    <input type="hidden" name="supplier_id" value="{{ $supplier->id }}">
                 </div>
 
                 <!-- Champ pour la date -->
@@ -84,24 +83,6 @@
             <input type="number" name="items[${itemCount}][quantity]" class="form-input mt-1 flex-1 border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-500" placeholder="Quantité" required>
         `;
         itemContainer.appendChild(newItem);
-    });
-
-    document.getElementById('supplier_id').addEventListener('change', function() {
-        const supplierId = this.value;
-        fetch(`/api/products/${supplierId}`)
-            .then(response => response.json())
-            .then(data => {
-                const productSelects = document.querySelectorAll('select[name^="items"]');
-                productSelects.forEach(select => {
-                    select.innerHTML = '';
-                    data.forEach(product => {
-                        const option = document.createElement('option');
-                        option.value = product.id;
-                        option.textContent = product.name;
-                        select.appendChild(option);
-                    });
-                });
-            });
     });
 </script>
 @endsection

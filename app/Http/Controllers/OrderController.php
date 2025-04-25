@@ -25,51 +25,61 @@ class OrderController extends Controller
      * Affiche le formulaire de création d'une commande pour un fournisseur donné.
      */
     public function create($supplier_id)
-    {
-        $users = User::all();
-        $suppliers = Supplier::all();
+{
+    // Récupérer le fournisseur en question
+    $supplier = Supplier::findOrFail($supplier_id);
 
-        // Récupérer uniquement les produits du fournisseur sélectionné
-        $products = Product::where('supplier_id', $supplier_id)->get();
+    // Récupérer uniquement les produits associés au fournisseur sélectionné
+    $products = Product::where('supplier_id', $supplier_id)->get();
 
-         // ID de l'utilisateur connecté
-        $user_id = auth()->id();
+    // ID de l'utilisateur connecté
+    $user_id = auth()->id();
 
-        return view('orders.create', compact('users', 'suppliers', 'products', 'supplier_id', 'user_id'));
-    }
+    // Retourner la vue avec les données nécessaires
+    return view('orders.create', compact('supplier', 'products', 'user_id'));
+}
+
 
     /**
      * Enregistre une nouvelle commande dans la base de données.
      */
     public function store(Request $request)
-    {
-        // Validation des données
-        $validatedData = $request->validate([
-            'user_id' => 'required|exists:users,id',
-            'supplier_id' => 'required|exists:suppliers,id',
-            'date' => 'required|date',
-            'items' => 'required|array',
-            'items.*.product_id' => 'required|exists:products,id',
-            'items.*.quantity' => 'required|integer|min:1',
+{
+    $validatedData = $request->validate([
+        'user_id' => 'required|exists:users,id',
+        'supplier_id' => 'required|exists:suppliers,id',
+        'date' => 'required|date',
+        'items' => 'required|array',
+        'items.*.product_id' => 'required|exists:products,id',
+        'items.*.quantity' => 'required|integer|min:1',
+    ]);
+
+    // Créer la commande
+    $order = Order::create([
+        'user_id' => $validatedData['user_id'],
+        'supplier_id' => $validatedData['supplier_id'],
+        'status' => 'pending',
+        'date' => $validatedData['date'],
+    ]);
+
+    // Associer les produits via la table pivot
+    foreach ($validatedData['items'] as $item) {
+        $order->products()->attach($item['product_id'], [
+            'quantity' => $item['quantity'],
+            'price' => Product::find($item['product_id'])->price,
         ]);
-
-        // Création de la commande
-        $order = Order::create([
-            'user_id' => $validatedData['user_id'],
-            'supplier_id' => $validatedData['supplier_id'],
-            'status' => 'pending',
-            'date' => $validatedData['date'],
-        ]);
-
-        // Ajout des produits à la commande
-        foreach ($validatedData['items'] as $itemData) {
-            $order->products()->attach($itemData['product_id'], [
-                'quantity' => $itemData['quantity'],
-            ]);
-        }
-
-        return redirect()->route('orders.index')->with('success', 'Commande créée avec succès.');
     }
+
+    return redirect()->route('orders.index')->with('success', 'Commande créée avec succès.');
+}
+
+
+
+    
+
+
+
+
 
     /**
      * Affiche le formulaire d'édition d'une commande existante.

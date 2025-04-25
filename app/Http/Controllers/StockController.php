@@ -25,11 +25,37 @@ class StockController extends Controller
 
     public function update(Request $request, Stock $stock)
     {
+        // Validation des données
         $validated = $request->validate([
             'quantity' => 'required|integer|min:0',
         ]);
 
-        $stock->update($validated);
-        return redirect()->route('stocks.index')->with('success', 'Stock mis à jour');
+        // Vérifier si la quantité demandée dépasse le stock actuel
+        if ($validated['quantity'] > $stock->quantity) {
+            return redirect()->route('stocks.index')->withErrors([
+                'quantity' => 'La quantité mise à jour ne peut pas dépasser le stock disponible actuel.',
+            ]);
+        }
+
+        // Appliquer les modifications
+        $stock->quantity = $validated['quantity'];
+        $stock->updated_at = now(); // Mettre à jour explicitement le champ updated_at
+        $stock->save(); // Sauvegarder les modifications
+
+        return redirect()->route('stocks.index')->with('success', 'Stock mis à jour avec succès.');
     }
+    public function edit(Stock $stock)
+    {
+        // Passer les données à la vue
+        return view('stocks.edit', compact('stock'));
+    }
+    public function destroy(Stock $stock)
+    {
+        // Supprimer le stock
+        $stock->delete();
+
+        return redirect()->route('stocks.index')->with('success', 'Stock supprimé avec succès.');
+    }
+
+
 }

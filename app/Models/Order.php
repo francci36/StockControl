@@ -21,8 +21,11 @@ class Order extends Model
         'supplier_id',
         'status',
         'date',
+        'product_id', // Ajout nécessaire
+        'quantity',
         'total_amount',
     ];
+    
 
     /**
      * Les colonnes à caster automatiquement.
@@ -62,7 +65,7 @@ class Order extends Model
      */
     public function supplier(): BelongsTo
     {
-        return $this->belongsTo(Supplier::class);
+        return $this->belongsTo(Supplier::class, 'supplier_id');
     }
 
     /**

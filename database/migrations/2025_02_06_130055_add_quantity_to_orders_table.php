@@ -13,10 +13,13 @@ class AddQuantityToOrdersTable extends Migration
      */
     public function up()
     {
-        Schema::table('orders', function (Blueprint $table) {
-            $table->integer('quantity')->nullable();
-        });
+        if (!Schema::hasColumn('orders', 'quantity')) {
+            Schema::table('orders', function (Blueprint $table) {
+                $table->integer('quantity')->nullable();
+            });
+        }
     }
+
 
     /**
      * Reverse the migrations.

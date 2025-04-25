@@ -13,10 +13,13 @@ class AddDateToOrdersTable extends Migration
      */
     public function up()
     {
-        Schema::table('orders', function (Blueprint $table) {
-            $table->date('date')->nullable();
-        });
+        if (!Schema::hasColumn('orders', 'date')) {
+            Schema::table('orders', function (Blueprint $table) {
+                $table->date('date')->nullable();
+            });
+        }
     }
+
 
     /**
      * Reverse the migrations.

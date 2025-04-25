@@ -9,13 +9,15 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up(): void
+    public function up()
     {
         Schema::table('suppliers', function (Blueprint $table) {
-            $table->string('contact')->nullable()->change();
-
+            if (!Schema::hasColumn('suppliers', 'contact')) {
+                $table->string('contact')->nullable();
+            }
         });
     }
+    
 
     /**
      * Reverse the migrations.

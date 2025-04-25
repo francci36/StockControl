@@ -8,10 +8,13 @@ class AddQuantityToStocksTable extends Migration
 {
     public function up()
     {
-        Schema::table('stocks', function (Blueprint $table) {
-            $table->integer('quantity')->after('product_id');
-        });
+        if (!Schema::hasColumn('stocks', 'quantity')) {
+            Schema::table('stocks', function (Blueprint $table) {
+                $table->integer('quantity')->notNull()->default(0)->after('product_id');
+            });
+        }
     }
+
 
     public function down()
     {
