@@ -22,15 +22,18 @@
             <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                 @foreach($transactions as $transaction)
                 <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition duration-200 ease-in-out">
-                    <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-800 dark:text-gray-200">{{ $transaction->product->name }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-800 dark:text-gray-200">
+                        {{ $transaction->product ? $transaction->product->name : 'Produit inconnu' }}
+                    </td>
                     <td class="px-6 py-4 whitespace-nowrap text-gray-800 dark:text-gray-200">{{ $transaction->quantity }}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-gray-800 dark:text-gray-200">{{ number_format($transaction->price, 2, ',', ' ') }} €</td>
                     <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-800 dark:text-gray-200">{{ number_format($transaction->quantity * $transaction->price, 2, ',', ' ') }} €</td>
                     <td class="px-6 py-4 whitespace-nowrap">
-                        <span class="px-2 py-1 text-sm rounded-full {{ $transaction->type === 'entry' ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200' : 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200' }}">
-                            {{ $transaction->type === 'entry' ? 'Entrée' : 'Sortie' }}
+                        <span class="px-2 py-1 text-sm rounded-full bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200">
+                            Sortie
                         </span>
                     </td>
+
                     <td class="px-6 py-4 whitespace-nowrap text-gray-800 dark:text-gray-200">{{ $transaction->created_at->format('d/m/Y H:i') }}</td>
                 </tr>
                 @endforeach
