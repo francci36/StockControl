@@ -96,16 +96,14 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy'); // DELETE for deleting the account
 });
 // routes de ventes
-// Middleware pour protéger les routes
+// Middleware pour protéger les routes des ventes (authentification requise)
 Route::middleware(['auth'])->group(function () {
-    // Routes basiques RESTful pour les ventes
+    // Routes RESTful principales pour les ventes
     Route::resource('sales', SalesController::class);
 
-    // Routes spécifiques si nécessaire
-    Route::get('/sales/create', [SalesController::class, 'create'])->name('sales.create'); // Formulaire de création de vente
-    Route::post('/sales', [SalesController::class, 'store'])->name('sales.store'); // Enregistrement d'une vente
-    Route::get('/sales/{sale}', [SalesController::class, 'show'])->name('sales.show'); // Voir une vente spécifique
-    Route::get('/sales/{sale}/edit', [SalesController::class, 'edit'])->name('sales.edit'); // Formulaire d'édition
-    Route::put('/sales/{sale}', [SalesController::class, 'update'])->name('sales.update'); // Mise à jour d'une vente
-    Route::delete('/sales/{sale}', [SalesController::class, 'destroy'])->name('sales.destroy'); // Suppression d'une vente
+    // Routes spécifiques pour les paiements
+    Route::post('/sales/{sale}/stripe-callback', [SalesController::class, 'stripeCallback'])
+        ->name('sales.stripeCallback');
+    Route::post('/sales/{sale}/paypal-callback', [SalesController::class, 'paypalCallback'])
+        ->name('sales.paypalCallback');
 });

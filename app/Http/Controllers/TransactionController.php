@@ -11,13 +11,14 @@ class TransactionController extends Controller
 {
     public function index()
     {
-        // Récupérer uniquement les transactions "exit"
         $transactions = Transaction::with('product')
-            ->orderBy('created_at', 'desc') // Tri pour afficher les plus récentes
+            ->where('type', 'exit')
+            ->orderBy('created_at', 'desc')
             ->paginate(10);
 
         return view('transactions.index', compact('transactions'));
     }
+
 
     public function create()
     {
@@ -28,43 +29,61 @@ class TransactionController extends Controller
     }
 
     public function store(Request $request)
-    {
-        // Validation des données
-        $validatedData = $request->validate([
-            'product_id' => 'required|array',
-            'product_id.*' => 'exists:products,id',
-            'quantity' => 'required|array',
-            'quantity.*' => 'numeric|min:1',
-            'price' => 'required|array',
-            'price.*' => 'numeric|min:0',
+{
+    // Validation des données
+    $validated = $request->validate([
+        'product_id.*' => 'required|exists:products,id',
+        'quantity.*' => 'required|integer|min:1',
+        'price.*' => 'required|numeric|min:0',
+        'payment_mode' => 'required|in:cash,credit_card,paypal,stripe,bank_transfer',
+        'total_amount' => 'required|numeric|min:0',
+    ]);
+
+    // Vérification du stock et création de la vente
+    foreach ($request->product_id as $index => $productId) {
+        $product = Product::findOrFail($productId);
+        if ($request->quantity[$index] > $product->stock->quantity) {
+            return back()->withErrors(['quantity' => "Stock insuffisant pour {$product->name}"]);
+        }
+    }
+
+    // Créer la vente
+    $sale = Sale::create([
+        'payment_mode' => $request->payment_mode,
+        'total_amount' => $request->total_amount,
+        'status' => 'completed',
+        'user_id' => auth()->id(),
+    ]);
+
+    // Ajouter les produits liés à la table pivot et enregistrer les transactions
+    foreach ($request->product_id as $index => $productId) {
+        $product = Product::findOrFail($productId);
+        $quantity = $request->quantity[$index];
+        $unitPrice = $product->price;
+        $totalPrice = $quantity * $unitPrice;
+
+        // Enregistrer la vente dans la table pivot
+        $sale->products()->attach($productId, [
+            'quantity' => $quantity,
+            'unit_price' => $unitPrice,
+            'total_price' => $totalPrice,
         ]);
 
-        foreach ($request->product_id as $index => $productId) {
-            $product = Product::findOrFail($productId);
-            $stock = Stock::firstOrCreate(['product_id' => $productId]);
+        // Réduire le stock
+        $product->stock->quantity -= $quantity;
+        $product->stock->save();
 
-            // Vérification du stock avant soustraction
-            if ($stock->quantity < $request->quantity[$index]) {
-                return back()->withErrors([
-                    'quantity' => "La quantité demandée pour le produit {$product->name} dépasse le stock disponible ({$stock->quantity})."
-                ]);
-            }
-
-            // Réduire le stock
-            $stock->quantity -= $request->quantity[$index];
-
-            // Enregistrer la transaction de type "exit"
-            Transaction::create([
-                'product_id' => $productId,
-                'quantity' => $request->quantity[$index],
-                'price' => $request->price[$index],
-                'type' => 'exit', // Type fixé à "exit"
-            ]);
-
-            // Sauvegarder le stock mis à jour
-            $stock->save();
-        }
-
-        return redirect()->route('transactions.index')->with('success', 'Transactions enregistrées avec succès.');
+        // Enregistrer la transaction de type "exit"
+        Transaction::create([
+            'product_id' => $productId,
+            'quantity' => $quantity,
+            'price' => $unitPrice,
+            'type' => 'exit',
+        ]);
     }
+
+    return redirect()->route('sales.index')->with('success', 'Vente créée et enregistrée comme une transaction !');
+}
+
+
 }

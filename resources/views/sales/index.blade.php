@@ -26,11 +26,17 @@
                 <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition duration-200">
                     <!-- Produit vendu -->
                     <td class="px-4 py-2 border border-gray-300 dark:border-gray-600">
-                        {{ $sale->product->name }}
+                        @forelse($sale->products as $product)
+                            {{ $product->name }}<br>
+                        @empty
+                            Produit non défini
+                        @endforelse
                     </td>
                     <!-- Quantité -->
                     <td class="px-4 py-2 border border-gray-300 dark:border-gray-600">
-                        {{ $sale->quantity }}
+                        @foreach($sale->products as $product)
+                            {{ $product->pivot->quantity }}<br>
+                        @endforeach
                     </td>
                     <!-- Prix Total -->
                     <td class="px-4 py-2 border border-gray-300 dark:border-gray-600">

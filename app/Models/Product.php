@@ -46,4 +46,13 @@ class Product extends Model
         return $value ?? 5; // Utilise 5 comme valeur par défaut
     }
 
+    public function sales()
+    {
+        return $this->belongsToMany(Sale::class, 'sale_product') // Utilisez 'sale_product'
+            ->withPivot('quantity', 'unit_price', 'total_price')
+            ->withTimestamps();
+    }
+
+
+
 }

@@ -96,11 +96,12 @@
             </button>
         </div>
 
-        <!-- Champs Stripe -->
+        <!-- Section Stripe (nouvelle) -->
         <div id="stripeFields" style="display: none;" class="mt-6">
-            <button type="button" class="bg-indigo-500 hover:bg-indigo-700 text-white p-2 rounded-lg shadow">
-                Paiement avec Stripe
-            </button>
+            <div id="stripe-card-element" class="p-3 border rounded-lg">
+                <!-- Stripe injectera les champs ici -->
+            </div>
+            <div id="stripe-card-errors" role="alert" class="text-red-500 mt-2"></div>
         </div>
 
         <!-- Montant total -->
@@ -233,6 +234,60 @@
         document.getElementById('stripeFields').style.display = mode === 'stripe' ? 'block' : 'none';
 
     });
+    // Ajouter cette partie pour Stripe
+    document.getElementById('payment_mode').addEventListener('change', function() {
+        if (this.value === 'stripe' && typeof Stripe === 'undefined') {
+            const script = document.createElement('script');
+            script.src = 'https://js.stripe.com/v3/';
+            script.onload = function() {
+                initStripe();
+            };
+            document.head.appendChild(script);
+        }
+    });
+
+    function initStripe() {
+        const stripe = Stripe('{{ env("STRIPE_KEY") }}');
+        const elements = stripe.elements();
+        const cardElement = elements.create('card');
+        cardElement.mount('#stripe-card-element');
+
+        // Gestion des erreurs
+        cardElement.addEventListener('change', function(event) {
+            const displayError = document.getElementById('stripe-card-errors');
+            if (event.error) {
+                displayError.textContent = event.error.message;
+            } else {
+                displayError.textContent = '';
+            }
+        });
+
+        // Intercepter la soumission du formulaire
+        document.getElementById('salesForm').addEventListener('submit', function(e) {
+            if (document.getElementById('payment_mode').value === 'stripe') {
+                e.preventDefault();
+                
+                stripe.createPaymentMethod({
+                    type: 'card',
+                    card: cardElement,
+                }).then(function(result) {
+                    if (result.error) {
+                        document.getElementById('stripe-card-errors').textContent = result.error.message;
+                    } else {
+                        // Ajouter le payment_method au formulaire
+                        const input = document.createElement('input');
+                        input.type = 'hidden';
+                        input.name = 'stripe_payment_method';
+                        input.value = result.paymentMethod.id;
+                        document.getElementById('salesForm').appendChild(input);
+                        
+                        // Soumettre le formulaire
+                        document.getElementById('salesForm').submit();
+                    }
+                });
+            }
+        });
+    }
 </script>
 
 

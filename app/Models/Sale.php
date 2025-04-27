@@ -9,29 +9,33 @@ class Sale extends Model
 {
     use HasFactory;
 
-    // Définir les colonnes mass assignables
     protected $fillable = [
         'product_id',
         'quantity',
         'total_price',
         'payment_mode',
+        'user_id',
+        'status', // Nouveau champ
+        'payment_reference' // Nouveau champ pour référence de paiement
     ];
 
-    /**
-     * Relation avec le modèle Product.
-     * Chaque vente est associée à un produit.
-     */
-    public function product()
+    // Relation avec les produits (many-to-many)
+    public function products()
     {
-        return $this->belongsTo(Product::class);
+        return $this->belongsToMany(Product::class, 'sale_product') // Utilisez 'sale_product'
+            ->withPivot('quantity', 'unit_price', 'total_price')
+            ->withTimestamps();
     }
 
-    /**
-     * Relation avec le modèle User (facultative).
-     * Chaque vente pourrait être associée à un utilisateur.
-     */
+
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    // Nouvelle relation avec les transactions
+    public function transactions()
+    {
+        return $this->hasMany(Transaction::class);
     }
 }
