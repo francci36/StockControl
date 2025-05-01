@@ -49,12 +49,15 @@
                     <!-- Actions -->
                     <td class="px-4 py-2 border border-gray-300 dark:border-gray-600">
                         <a href="{{ route('sales.show', $sale->id) }}" class="text-blue-600 dark:text-blue-400 hover:text-blue-800">Afficher</a>
-                        <a href="{{ route('sales.edit', $sale->id) }}" class="ml-2 text-yellow-600 dark:text-yellow-400 hover:text-yellow-800">Modifier</a>
-                        <form action="{{ route('sales.destroy', $sale->id) }}" method="POST" class="inline-block ml-2">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="text-red-600 dark:text-red-400 hover:text-red-800">Supprimer</button>
-                        </form>
+                        
+                        @if(auth()->user()->role === 'admin' || auth()->user()->role === 'manager')
+                            <a href="{{ route('sales.edit', $sale->id) }}" class="ml-2 text-yellow-600 dark:text-yellow-400 hover:text-yellow-800">Modifier</a>
+                            <form action="{{ route('sales.destroy', $sale->id) }}" method="POST" class="inline-block ml-2">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="text-red-600 dark:text-red-400 hover:text-red-800">Supprimer</button>
+                            </form>
+                        @endif
                     </td>
                 </tr>
                 @empty

@@ -59,13 +59,15 @@
                                     </form>
 
                                     <!-- Formulaire de suppression -->
-                                    <form action="{{ route('orders.destroy', $order->id) }}" method="POST" class="inline">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="bg-red-500 hover:bg-red-700 text-white text-sm font-bold py-1 px-3 rounded" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette commande ?')">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </form>
+                                     @if(auth()->user()->role === 'admin' || auth()->user()->role === 'manager')
+                                        <form action="{{ route('orders.destroy', $order->id) }}" method="POST" class="inline">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="bg-red-500 hover:bg-red-700 text-white text-sm font-bold py-1 px-3 rounded" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette commande ?')">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    @endif
                                 </div>
                             </td>
                         </tr>

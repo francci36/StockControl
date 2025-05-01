@@ -17,6 +17,10 @@ class ProductController extends Controller
      */
     public function create($supplier_id)
     {
+        // Vérifier si l'utilisateur a le rôle approprié
+        if (auth()->user()->role !== 'admin' && auth()->user()->role !== 'manager') {
+            abort(403, 'Accès interdit.');
+        }
         // Vérifier si le fournisseur existe ou renvoyer une erreur 404
         $supplier = Supplier::findOrFail($supplier_id);
 

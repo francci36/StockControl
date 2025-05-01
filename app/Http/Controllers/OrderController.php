@@ -17,9 +17,15 @@ class OrderController extends Controller
      */
     public function index()
     {
+        if (!auth()->check() || !in_array(auth()->user()->role, ['admin', 'manager', 'user'])) {
+            abort(403, 'Accès interdit.');
+        }
+
         $orders = Order::with(['user', 'supplier', 'products'])->paginate(20); // Pagination
+
         return view('orders.index', compact('orders'));
     }
+
 
     /**
      * Affiche le formulaire de création d'une commande pour un fournisseur donné.

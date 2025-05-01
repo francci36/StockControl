@@ -1,5 +1,4 @@
-<!-- resources/views/auth/register.blade.php -->
-@extends('layouts.app')
+@extends('layouts.guest')
 
 @section('title', 'Inscription')
 

@@ -20,6 +20,10 @@ class SupplierController extends Controller
 
     public function create()
     {
+        if(auth()->user()->role !== 'admin' && auth()->user()->role !== 'manager') {
+            abort(403, 'Accès interdit.');
+        }
+
         $products = Product::all(); // récupère tous les produits
         return view('suppliers.create', compact('products'));
     }
@@ -39,12 +43,20 @@ class SupplierController extends Controller
 
     public function edit($id)
     {
+        if(auth()->user()->role !== 'admin' && auth()->user()->role !== 'manager') {
+            abort(403, 'Accès interdit.');
+        }
+        
         $supplier = Supplier::findOrFail($id);
         return view('suppliers.edit', compact('supplier'));
     }
 
     public function update(Request $request, $id)
     {
+        if(auth()->user()->role !== 'admin' && auth()->user()->role !== 'manager') {
+            abort(403, 'Accès interdit.');
+        }
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:suppliers,email,' . $id,
@@ -59,6 +71,10 @@ class SupplierController extends Controller
 
     public function destroy($id)
     {
+        if(auth()->user()->role !== 'admin' && auth()->user()->role !== 'manager') {
+            abort(403, 'Accès interdit.');
+        }
+        
         // Trouver le fournisseur
         $supplier = Supplier::findOrFail($id);
 

@@ -13,6 +13,9 @@ class RapportController extends Controller
 {
     public function index()
 {
+    if (!auth()->check() || auth()->user()->role === 'user') {
+        abort(403, 'Accès interdit.');
+    }
     // Automatisation des rapports
     $this->updateReports();
 

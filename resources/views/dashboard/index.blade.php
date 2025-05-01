@@ -10,6 +10,12 @@
                 <div class="col-sm-6">
                     <h1 class="m-0">Tableau de bord</h1>
                 </div>
+                <div class="col-sm-6 text-right">
+                    <!-- Bouton "Créer un utilisateur" visible uniquement pour les admins et managers -->
+                    @if(auth()->user()->role === 'admin' || auth()->user()->role === 'manager')
+                        <a href="{{ route('admin.users.create.form') }}" class="btn btn-primary">Créer un utilisateur</a>
+                    @endif
+                </div>
             </div>
         </div>
     </div>
@@ -81,6 +87,25 @@
                         </a>
                     </div>
                 </div>
+
+                <!-- Ventes -->
+                <div class="col-lg-3 col-6">
+                    <div class="small-box bg-secondary">
+                        <div class="inner text-center">
+                            <h3>{{ number_format($totalSalesAmount, 2, ',', ' ') }} €</h3>
+                            <p>Total des ventes</p>
+                        </div>
+                        <div class="icon">
+                            <i class="fas fa-shopping-cart"></i>
+                        </div>
+                        <a href="{{ route('sales.index') }}" class="small-box-footer">
+                            Plus d'infos <i class="fas fa-arrow-circle-right"></i>
+                        </a>
+                    </div>
+                </div>
+
+                 
+                 
             </div>
 
             <!-- Filtres améliorés -->

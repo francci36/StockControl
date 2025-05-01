@@ -20,7 +20,7 @@ class Kernel extends HttpKernel
             ShareErrorsFromSession::class,
             VerifyCsrfToken::class,
             SubstituteBindings::class,
-            \App\Http\Middleware\LogSqlQueries::class, // Ajouter ce middleware
+           // \App\Http\Middleware\LogSqlQueries::class, // Ajouter ce middleware
         ],
 
         'api' => [
@@ -31,7 +31,6 @@ class Kernel extends HttpKernel
 
     protected $routeMiddleware = [
         'auth' => \App\Http\Middleware\Authenticate::class,
-       // 'role' => \App\Http\Middleware\RoleMiddleware::class, // Ajouter ce middleware
         'auth.basic' => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
         'cache.headers' => \Illuminate\Http\Middleware\SetCacheHeaders::class,
         'can' => \Illuminate\Auth\Middleware\Authorize::class,

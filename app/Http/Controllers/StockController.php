@@ -10,18 +10,18 @@ class StockController extends Controller
 {
     public function index()
     {
-        // Récupérer les enregistrements de la table stocks avec les produits associés et ajouter la pagination
-        $stocks = Stock::with('product')->paginate(20); // Remplacez 10 par le nombre d'éléments à afficher par page
+        if (!auth()->check() || !in_array(auth()->user()->role, ['admin', 'manager', 'user'])) {
+            abort(403, 'Accès interdit.');
+        }
 
-        // Log pour vérifier les données
+        $stocks = Stock::with('product')->paginate(20); // Pagination
         Log::info('Stocks récupérés : ', $stocks->items());
 
-        
-
-
-        // Passer les données à la vue
         return view('stocks.index', compact('stocks'));
     }
+
+
+
 
     public function update(Request $request, Stock $stock)
     {
@@ -44,18 +44,28 @@ class StockController extends Controller
 
         return redirect()->route('stocks.index')->with('success', 'Stock mis à jour avec succès.');
     }
-    public function edit(Stock $stock)
+    public function edit($id)
     {
-        // Passer les données à la vue
+        if (!auth()->check() || !in_array(auth()->user()->role, ['admin', 'manager'])) {
+            abort(403, 'Accès interdit.');
+        }
+
+        $stock = Stock::findOrFail($id);
         return view('stocks.edit', compact('stock'));
     }
-    public function destroy(Stock $stock)
+
+    public function destroy($id)
     {
-        // Supprimer le stock
+        if (!auth()->check() || !in_array(auth()->user()->role, ['admin', 'manager'])) {
+            abort(403, 'Accès interdit.');
+        }
+
+        $stock = Stock::findOrFail($id);
         $stock->delete();
 
-        return redirect()->route('stocks.index')->with('success', 'Stock supprimé avec succès.');
+        return redirect()->route('stocks.index')->with('success', 'Produit supprimé.');
     }
+
 
 
 }
