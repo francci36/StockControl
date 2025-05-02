@@ -76,17 +76,18 @@
                 <div class="col-lg-3 col-6">
                     <div class="small-box bg-danger">
                         <div class="inner">
-                            <h3>{{ count($lowStock) }}</h3>
+                            <h3>{{ $lowStock->count() }}</h3>
                             <p>Produits à réapprovisionner</p>
                         </div>
                         <div class="icon">
                             <i class="fas fa-exclamation-triangle"></i>
                         </div>
-                        <a href="{{ route('products.index') }}" class="small-box-footer">
+                        <a href="{{ route('products.index', ['lowStock' => 1]) }}" class="small-box-footer">
                             Plus d'infos <i class="fas fa-arrow-circle-right"></i>
                         </a>
                     </div>
                 </div>
+
 
                 <!-- Ventes -->
                 <div class="col-lg-3 col-6">

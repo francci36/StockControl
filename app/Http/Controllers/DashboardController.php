@@ -39,10 +39,12 @@ class DashboardController extends Controller
         $totalProducts = Product::count();
         $pendingOrders = Order::where('status', 'pending')->count();
 
-        $lowStock = Product::whereNotNull('stock_threshold')
-            ->whereColumn('quantity', '<', 'stock_threshold')
-            ->orWhere('quantity', 0)
-            ->get();
+        $lowStock = Product::whereHas('stock', function ($query) {
+            $query->whereColumn('quantity', '<=', 'stock_threshold')
+                  ->where('quantity', '>', 0); // Exclure les produits sans stock
+        })->get();
+        
+
 
         $recentOrders = Order::with(['supplier', 'products'])
             ->latest()

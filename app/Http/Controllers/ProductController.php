@@ -43,6 +43,7 @@ class ProductController extends Controller
             'products.*.name' => 'required|string|max:255',
             'products.*.description' => 'nullable|string',
             'products.*.price' => 'required|numeric|min:0',
+            'products.*.quantity' => 'nullable|integer|min:0',
             'products.*.stock_threshold' => 'nullable|integer|min:0',
         ]);
 
@@ -76,14 +77,26 @@ class ProductController extends Controller
      *
      * @return \Illuminate\View\View
      */
-    public function index()
+    public function index(Request $request)
     {
-        // Récupérer tous les produits et leurs fournisseurs associés
-        $products = Product::with('supplier')->paginate(20); // Remplacez 10 par le nombre d'éléments à afficher par page
-        
-        // Retourner la vue index des produits
+        // Démarrer la requête avec les relations des fournisseurs et du stock
+        $query = Product::with(['supplier', 'stock']);
+
+        // Vérifier si l'utilisateur veut voir uniquement les produits en stock faible
+        if ($request->has('lowStock') && $request->lowStock == 1) {
+            $query->whereHas('stock', function ($q) {
+                $q->whereColumn('quantity', '<=', 'stock_threshold');
+            });
+        }
+
+        // Assurer que les données stock sont bien récupérées
+        $products = $query->paginate(20);
+
+        // Retourner la vue des produits avec les stocks affichés correctement
         return view('products.index', compact('products'));
     }
+
+
 
     /**
      * Méthode privée pour valider les données de produit.

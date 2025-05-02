@@ -9,11 +9,12 @@ class Kernel extends ConsoleKernel
 {
     protected $commands = [
         Commands\TestEmail::class,
+        \App\Console\Commands\UpdateStockThreshold::class,
     ];
 
     protected function schedule(Schedule $schedule)
     {
-        // Schedule tasks
+        $schedule->command('stocks:update-threshold')->daily();
     }
 
     protected function commands()
