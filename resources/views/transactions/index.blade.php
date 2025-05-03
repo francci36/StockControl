@@ -16,6 +16,7 @@
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 dark:text-gray-200 uppercase tracking-wider">Prix Unitaire</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 dark:text-gray-200 uppercase tracking-wider">Valeur Totale</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 dark:text-gray-200 uppercase tracking-wider">Type</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 dark:text-gray-200 uppercase tracking-wider">Raison</th> <!-- Ajout de la colonne -->
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 dark:text-gray-200 uppercase tracking-wider">Date</th>
                 </tr>
             </thead>
@@ -38,12 +39,15 @@
                         </span>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-gray-800 dark:text-gray-200">
+                        {{ $transaction->reason ?? 'Non spécifiée' }} <!-- Affichage de la raison -->
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-gray-800 dark:text-gray-200">
                         {{ $transaction->created_at ? $transaction->created_at->format('d/m/Y H:i') : 'Date inconnue' }}
                     </td>
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="6" class="text-center text-gray-500 dark:text-gray-400">
+                    <td colspan="7" class="text-center text-gray-500 dark:text-gray-400">
                         Aucune transaction trouvée.
                     </td>
                 </tr>

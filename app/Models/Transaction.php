@@ -14,6 +14,7 @@ class Transaction extends Model
         'quantity',
         'price', // Assurez-vous que cette colonne existe dans la table `transactions`
         'type', // 'entry' ou 'exit'
+        'reason'
     ];
     public function product()
     {

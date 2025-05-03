@@ -138,6 +138,7 @@ class SalesController extends Controller
                 'quantity' => $quantity,
                 'price' => $unitPrice,
                 'type' => 'exit',
+                'reason' => 'Vente client', // Ajout de la raison automatique
             ]);
         }
     }

@@ -89,7 +89,9 @@ class TransactionController extends Controller
                 'quantity' => $quantity,
                 'price' => $unitPrice,
                 'type' => 'exit',
+                'reason' => $request->input('reason')[$index] ?? 'Vente client', // Enregistre la raison
             ]);
+            
         }
 
         return redirect()->route('sales.index')->with('success', 'Vente créée et enregistrée comme une transaction !');
