@@ -1,34 +1,35 @@
 <?php
+// app/Http/Controllers/SalesController.php
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Models\Sale;
 use App\Models\Transaction;
-use App\Models\Stock;
+
+use Illuminate\Http\Request;
 
 class SalesController extends Controller
 {
-    // Afficher les ventes
     public function index()
     {
         if (!auth()->check() || !in_array(auth()->user()->role, ['admin', 'manager', 'user'])) {
             abort(403, 'Accès interdit.');
         }
 
-        $sales = Sale::with('products')->paginate(10); // Chargement avec les produits associés
+        $sales = Sale::with(['products', 'transactions'])
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
+
         return view('sales.index', compact('sales'));
     }
 
-    // Gérer la création des ventes
     public function store(Request $request)
     {
         if (!auth()->check() || !in_array(auth()->user()->role, ['admin', 'manager', 'user'])) {
             abort(403, 'Accès interdit.');
         }
 
-        // Validation des données
         $validated = $request->validate([
             'product_id.*' => 'required|exists:products,id',
             'quantity.*' => 'required|integer|min:1',
@@ -37,26 +38,24 @@ class SalesController extends Controller
             'total_amount' => 'required|numeric|min:0',
         ]);
 
-        // Vérification du stock pour chaque produit
+        // Vérification du stock
         foreach ($request->product_id as $index => $productId) {
             $product = Product::findOrFail($productId);
             if ($request->quantity[$index] > $product->stock->quantity) {
-                return back()->withErrors(["quantity" => "Stock insuffisant pour le produit : {$product->name}"]);
+                return back()->withErrors(["quantity" => "Stock insuffisant pour {$product->name}"]);
             }
         }
 
-        // Gestion des modes de paiement
         switch ($request->payment_mode) {
             case 'stripe':
                 return $this->processStripePayment($request);
             case 'paypal':
                 return $this->processPaypalPayment($request);
-            default: 
+            default:
                 return $this->processDefaultPayment($request);
         }
     }
 
-    // Traitement via Stripe
     private function processStripePayment(Request $request)
     {
         $sale = $this->createSale($request, false);
@@ -69,7 +68,6 @@ class SalesController extends Controller
         ]);
     }
 
-    // Traitement via PayPal
     private function processPaypalPayment(Request $request)
     {
         $sale = $this->createSale($request, false);
@@ -82,25 +80,21 @@ class SalesController extends Controller
         ]);
     }
 
-    // Paiement par espèces ou virement bancaire
     private function processDefaultPayment(Request $request)
     {
         $sale = $this->createSale($request);
         $this->recordTransactions($request, $sale);
 
-        return redirect()->route('sales.show', $sale->id)->with('success', 'Vente enregistrée!');
+        return redirect()->route('sales.show', $sale->id)
+            ->with('success', 'Vente enregistrée avec succès !');
     }
 
-    // Création d'une vente
     private function createSale(Request $request, $complete = true)
     {
-        $totalPrice = array_sum($request->total);
-
         $sale = Sale::create([
             'payment_mode' => $request->payment_mode,
             'status' => $complete ? 'completed' : 'pending',
             'user_id' => auth()->id(),
-            'total_price' => $totalPrice,
             'total_amount' => $request->total_amount,
         ]);
 
@@ -108,25 +102,22 @@ class SalesController extends Controller
             $product = Product::findOrFail($productId);
             $quantity = $request->quantity[$index];
             $unitPrice = $product->price;
-            $totalPrice = $quantity * $unitPrice;
 
             $sale->products()->attach($productId, [
                 'quantity' => $quantity,
                 'unit_price' => $unitPrice,
-                'total_price' => $totalPrice,
+                'total_price' => $quantity * $unitPrice,
             ]);
 
             if ($complete) {
-                $product->stock->quantity -= $quantity;
-                $product->stock->save();
+                $product->stock->decrement('quantity', $quantity);
             }
         }
 
         return $sale;
     }
 
-    // Enregistrement des transactions
-    private function recordTransactions(Request $request, $sale)
+    public function recordTransactions(Request $request, Sale $sale, $isReturn = false)
     {
         foreach ($request->product_id as $index => $productId) {
             $product = Product::findOrFail($productId);
@@ -134,51 +125,72 @@ class SalesController extends Controller
             $unitPrice = $product->price;
 
             Transaction::create([
+                'sale_id' => $sale->id,
                 'product_id' => $productId,
-                'quantity' => $quantity,
+                'quantity' => $isReturn ? $quantity : $quantity, // Quantité positive dans les deux cas
                 'price' => $unitPrice,
-                'type' => 'exit',
-                'reason' => 'Vente client', // Ajout de la raison automatique
+                'type' => $isReturn ? 'entry' : 'exit', // Type différent selon si c'est un retour
+                'reason' => $isReturn ? ($request->reason ?? 'Retour client') : 'Vente client',
             ]);
         }
     }
 
-    // Affichage des détails d'une vente
-    public function show($id)
+    public function show(Sale $sale)
     {
-        $sale = Sale::with('products')->findOrFail($id);
+        $sale->load(['products', 'transactions']);
         return view('sales.show', compact('sale'));
     }
 
-    // Annulation d'une vente (réservé aux admins et managers)
-    public function cancel($id)
+    public function cancel(Sale $sale)
     {
         if (!auth()->check() || !in_array(auth()->user()->role, ['admin', 'manager'])) {
             abort(403, 'Accès interdit.');
         }
 
-        $sale = Sale::findOrFail($id);
-        $sale->status = 'canceled';
-        $sale->save();
+        DB::beginTransaction();
 
-        foreach ($sale->products as $product) {
-            $product->stock->quantity += $product->pivot->quantity;
-            $product->stock->save();
+        try {
+            $sale->status = 'canceled';
+            $sale->save();
+
+            // Création d'une transaction de retour pour chaque produit
+            foreach ($sale->products as $product) {
+                $quantity = $product->pivot->quantity;
+                
+                // Mise à jour du stock
+                $product->stock->increment('quantity', $quantity);
+
+                // Enregistrement de la transaction de retour
+                Transaction::create([
+                    'sale_id' => $sale->id,
+                    'product_id' => $product->id,
+                    'quantity' => $quantity,
+                    'price' => $product->pivot->unit_price,
+                    'type' => 'entry',
+                    'reason' => 'Annulation de vente',
+                ]);
+            }
+
+            DB::commit();
+
+            return redirect()->route('sales.index')
+                ->with('success', 'Vente annulée et stock mis à jour !');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->withErrors(['error' => 'Erreur lors de l\'annulation : ' . $e->getMessage()]);
         }
-
-        return redirect()->route('sales.index')->with('success', 'Vente annulée!');
     }
 
-    // Suppression d'une vente (réservé aux admins et managers)
-    public function destroy($id)
+    public function destroy(Sale $sale)
     {
         if (!auth()->check() || !in_array(auth()->user()->role, ['admin', 'manager'])) {
             abort(403, 'Accès interdit.');
         }
 
-        $sale = Sale::findOrFail($id);
         $sale->delete();
 
-        return redirect()->route('sales.index')->with('success', 'Vente supprimée!');
+        return redirect()->route('sales.index')
+            ->with('success', 'Vente supprimée avec succès !');
     }
 }

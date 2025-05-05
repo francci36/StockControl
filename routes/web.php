@@ -75,6 +75,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/transactions', [TransactionController::class, 'index'])->name('transactions.index');
     Route::get('/transactions/create', [TransactionController::class, 'create'])->name('transactions.create');
     Route::post('/transactions', [TransactionController::class, 'store'])->name('transactions.store');
+    Route::post('/transactions/return', [TransactionController::class, 'storeReturn'])->name('transactions.storeReturn');
 
     // Routes pour les commandes
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
