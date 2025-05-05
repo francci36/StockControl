@@ -6,23 +6,22 @@
 <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
     <!-- En-tête -->
     <h2 class="text-2xl font-semibold mb-6 text-blue-600 dark:text-blue-400 flex items-center">
-        <i class="fas fa-shopping-cart mr-2"></i> Nouvelle Transaction
+        <i class="fas fa-exchange-alt mr-2"></i> Nouvelle Transaction
     </h2>
 
     <!-- Selection du type de transaction -->
     <div class="mb-4">
         <label for="transaction_type" class="block text-gray-800 dark:text-gray-600 font-medium">Type de transaction :</label>
         <select name="transaction_type" id="transaction_type" class="form-select mt-1 block w-full focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-500 rounded-lg bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-800 dark:text-gray-200">
-            <option value="sale">Vente</option>
+            <option value="exit">Vente</option>
             <option value="entry">Retour</option>
         </select>
     </div>
 
-    <!-- Formulaire -->
-    <form action="{{ request('transaction_type') === 'entry' ? route('transactions.storeReturn') : route('transactions.store') }}" method="POST" class="space-y-4" id="transactionForm">       
-         @csrf
-         <input type="hidden" name="debug_data" value="{{ json_encode(request()->all()) }}">
-        <input type="hidden" name="type" id="transaction_type_field" value="exit">
+    <!-- Formulaire pour les ventes -->
+    <form action="{{ route('transactions.store') }}" method="POST" class="space-y-4" id="saleForm">       
+        @csrf
+        <input type="hidden" name="type" value="exit">
         
         <!-- Section des produits -->
         <div class="overflow-x-auto">
@@ -63,23 +62,6 @@
                 </tbody>
             </table>
         </div>
-        
-        <!-- Champs raison du retour -->
-        <div id="returnReason" class="hidden mt-4">
-            <label for="reason" class="block text-gray-800 dark:text-gray-600 font-medium">Raison du retour :</label>
-            <textarea name="reason" id="reason" rows="3" class="form-textarea mt-1 w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-800 dark:text-gray-200 rounded-lg"></textarea>
-        </div>
-
-        <!-- Champ "Référence de la vente originale" pour les retours -->
-        <div id="originalSaleField" class="mt-4 hidden">
-            <label for="original_sale_id" class="block text-gray-800 dark:text-gray-600 font-medium">Référence de la vente originale :</label>
-            <select name="original_sale_id" id="original_sale_id" class="form-select mt-1 w-full bg-white dark:bg-gray-700 border text-gray-800 dark:text-gray-200 rounded-lg">
-                <option value="">Sélectionner la vente originale</option>
-                @foreach($sales as $sale)
-                <option value="{{ $sale->id }}">Vente #{{ $sale->id }} - {{ $sale->created_at->format('d/m/Y H:i') }} - {{ number_format($sale->total_amount, 2, ',', ' ') }} €</option>
-                @endforeach
-            </select>
-        </div>
 
         <!-- Bouton pour ajouter une ligne -->
         <button type="button" id="addRow" class="mt-4 bg-green-500 hover:bg-green-700 text-white p-2 rounded">
@@ -87,7 +69,7 @@
         </button>
 
         <!-- Section des modes de paiement -->
-        <div id="paymentSection" class="mt-6">
+        <div class="mt-6">
             <label for="payment_mode" class="block text-gray-800 dark:text-gray-600 font-medium">Mode de paiement :</label>
             <select name="payment_mode" id="payment_mode" class="form-select mt-1 block w-full focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-500 rounded-lg bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-800 dark:text-gray-200">
                 <option value="cash">Espèces</option>
@@ -95,7 +77,6 @@
                 <option value="paypal">PayPal</option>
                 <option value="stripe">Stripe</option>
                 <option value="bank_transfer">Virement bancaire</option>
-                <option value="refund" class="hidden">Remboursement</option>
             </select>
         </div>
         
@@ -109,28 +90,13 @@
         <!-- Champs pour Carte de Crédit -->
         <div id="creditCardFields" style="display: none;" class="mt-6">
             <label for="card_number" class="block text-gray-800 dark:text-gray-600 font-medium">Numéro de carte :</label>
-            <input type="tel" name="card_number" id="card_number" class="form-input mt-1 w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-800 dark:text-gray-200 rounded-lg" maxlength="19" placeholder="XXXX XXXX XXXX XXXX" pattern="[0-9 ]+" inputmode="numeric" title="Veuillez entrer uniquement des chiffres">
+            <input type="tel" name="card_number" id="card_number" class="form-input mt-1 w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-800 dark:text-gray-200 rounded-lg" maxlength="19" placeholder="XXXX XXXX XXXX XXXX" pattern="[0-9 ]+" inputmode="numeric">
 
             <label for="card_expiry" class="block text-gray-800 dark:text-gray-600 font-medium">Date d'expiration (MM/AA) :</label>
-            <input type="text" name="card_expiry" id="card_expiry" class="form-input mt-1 w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-800 dark:text-gray-200 rounded-lg" placeholder="MM/AA" maxlength="5" pattern="^(0[1-9]|1[0-2])\/[0-9]{2}$" inputmode="numeric" title="Format attendu : MM/AA">
+            <input type="text" name="card_expiry" id="card_expiry" class="form-input mt-1 w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-800 dark:text-gray-200 rounded-lg" placeholder="MM/AA" maxlength="5">
 
             <label for="card_cvv" class="block text-gray-800 dark:text-gray-600 font-medium mt-2">Code CVV :</label>
-            <input type="tel" name="card_cvv" id="card_cvv" class="form-input mt-1 w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-800 dark:text-gray-200 rounded-lg" maxlength="3" placeholder="XXX" pattern="[0-9]{3}" inputmode="numeric" title="Veuillez entrer un code CVV à 3 chiffres">
-        </div>
-
-        <!-- Champs PayPal -->
-        <div id="paypalFields" style="display: none;" class="mt-6">
-            <button type="button" class="bg-blue-500 hover:bg-blue-700 text-white p-2 rounded-lg shadow">
-                Connexion à PayPal
-            </button>
-        </div>
-
-        <!-- Section Stripe -->
-        <div id="stripeFields" style="display: none;" class="mt-6">
-            <div id="stripe-card-element" class="p-3 border rounded-lg">
-                <!-- Stripe injectera les champs ici -->
-            </div>
-            <div id="stripe-card-errors" role="alert" class="text-red-500 mt-2"></div>
+            <input type="tel" name="card_cvv" id="card_cvv" class="form-input mt-1 w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-800 dark:text-gray-200 rounded-lg" maxlength="3" placeholder="XXX">
         </div>
 
         <!-- Montant total -->
@@ -141,8 +107,58 @@
 
         <!-- Bouton de soumission -->
         <div class="flex items-center justify-end mt-4">
-            <button type="submit" id="submitButton" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg shadow-md">
+            <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg shadow-md">
                 Finaliser la Vente
+            </button>
+        </div>
+    </form>
+
+    <!-- Formulaire pour les retours -->
+    <form action="{{ route('transactions.storeReturn') }}" method="POST" class="space-y-4 hidden" id="returnForm">
+        @csrf
+        <input type="hidden" name="type" value="entry">
+        
+        <!-- Référence de la vente originale -->
+        <div class="mt-4">
+            <label for="sale_id" class="block text-gray-800 dark:text-gray-600 font-medium">Référence de la vente originale :</label>
+            <select name="sale_id" id="sale_id" class="form-select mt-1 w-full bg-white dark:bg-gray-700 border text-gray-800 dark:text-gray-200 rounded-lg" required>
+                <option value="">Sélectionner la vente originale</option>
+                @foreach($sales as $sale)
+                <option value="{{ $sale->id }}" data-products="{{ $sale->products->toJson() }}">
+                    Vente #{{ $sale->id }} - {{ $sale->created_at->format('d/m/Y H:i') }} - {{ number_format($sale->total_amount, 2, ',', ' ') }} €
+                </option>
+                @endforeach
+            </select>
+        </div>
+
+        <!-- Produits à retourner -->
+        <div class="overflow-x-auto mt-4">
+            <table id="returnTable" class="table-auto w-full border-collapse border border-gray-300 dark:border-gray-600">
+                <thead>
+                    <tr class="bg-gray-100 dark:bg-gray-700">
+                        <th class="px-4 py-2 border">Produit</th>
+                        <th class="px-4 py-2 border">Quantité vendue</th>
+                        <th class="px-4 py-2 border">Quantité à retourner</th>
+                        <th class="px-4 py-2 border">Prix Unitaire</th>
+                        <th class="px-4 py-2 border">Action</th>
+                    </tr>
+                </thead>
+                <tbody id="returnProductsBody">
+                    <!-- Rempli dynamiquement via JavaScript -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Raison du retour -->
+        <div class="mt-4">
+            <label for="reason" class="block text-gray-800 dark:text-gray-600 font-medium">Raison du retour :</label>
+            <textarea name="reason" id="reason" rows="3" class="form-textarea mt-1 w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-800 dark:text-gray-200 rounded-lg" required></textarea>
+        </div>
+
+        <!-- Bouton de soumission -->
+        <div class="flex items-center justify-end mt-4">
+            <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg shadow-md">
+                Enregistrer le Retour
             </button>
         </div>
     </form>
@@ -153,50 +169,53 @@
     document.addEventListener('DOMContentLoaded', function () {
         // Gestion du type de transaction
         const transactionType = document.getElementById('transaction_type');
-        const transactionTypeField = document.getElementById('transaction_type_field');
-        const returnReason = document.getElementById('returnReason');
-        const originalSaleField = document.getElementById('originalSaleField');
-        const paymentSection = document.getElementById('paymentSection');
-        const submitButton = document.getElementById('submitButton');
-        const paymentMode = document.getElementById('payment_mode');
-        const refundOption = paymentMode.querySelector('option[value="refund"]');
+    const saleForm = document.getElementById('saleForm');
+    const returnForm = document.getElementById('returnForm');
+    
+    function updateTransactionType() {
+        const isReturn = transactionType.value === 'entry';
+        saleForm.classList.toggle('hidden', isReturn);
+        returnForm.classList.toggle('hidden', !isReturn);
+    }
+    
+    transactionType.addEventListener('change', updateTransactionType);
+    updateTransactionType();
+
         
-        function updateTransactionType() {
-            const isEntry = transactionType.value === 'entry';
-            
-            // Mise à jour du champ caché type
-            transactionTypeField.value = isEntry ? 'entry' : 'exit';
-            
-            // Mise à jour des champs visibles
-            returnReason.classList.toggle('hidden', !isEntry);
-            originalSaleField.classList.toggle('hidden', !isEntry);
-            paymentSection.classList.toggle('hidden', isEntry);
-            
-            // Mise à jour du texte du bouton
-            submitButton.textContent = isEntry ? 'Enregistrer le Retour' : 'Finaliser la Vente';
-            
-            // Si c'est un retour, forcer le mode de paiement à "remboursement"
-            if (isEntry) {
-                refundOption.classList.remove('hidden');
-                paymentMode.value = 'refund';
-            } else {
-                refundOption.classList.add('hidden');
-                if (paymentMode.value === 'refund') {
-                    paymentMode.value = 'cash';
-                }
-            }
-        }
+          // Gestion des produits pour les retours
+    document.getElementById('sale_id').addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+        const products = JSON.parse(selectedOption.dataset.products || '[]');
+        const tbody = document.getElementById('returnProductsBody');
         
-        transactionType.addEventListener('change', updateTransactionType);
-        updateTransactionType(); // Initialisation
+        tbody.innerHTML = '';
         
-        // Gestion de la sélection de la vente originale
-        document.getElementById('original_sale_id')?.addEventListener('change', function() {
-            const saleId = this.value;
-            if (!saleId) return;
-            
-            // Ici, vous pourriez ajouter une requête AJAX pour récupérer les produits de la vente originale
+        products.forEach(product => {
+            const row = document.createElement('tr');
+            row.className = 'border-b border-gray-300 dark:border-gray-600';
+            row.innerHTML = `
+                <td class="px-4 py-2">
+                    ${product.name}
+                    <input type="hidden" name="product_id[]" value="${product.id}">
+                </td>
+                <td class="px-4 py-2">${product.pivot.quantity}</td>
+                <td class="px-4 py-2">
+                    <input type="number" name="quantity[]" min="1" max="${product.pivot.quantity}" 
+                           class="w-full rounded-lg border-gray-300" required>
+                </td>
+                <td class="px-4 py-2">
+                    <input type="number" name="price[]" value="${product.pivot.unit_price}" 
+                           class="w-full rounded-lg border-gray-300" readonly>
+                </td>
+                <td class="px-4 py-2 text-center">
+                    <button type="button" class="remove-return-row bg-red-500 hover:bg-red-700 text-white p-2 rounded">
+                        Supprimer
+                    </button>
+                </td>
+            `;
+            tbody.appendChild(row);
         });
+    });
         
         // Ajout d'une nouvelle ligne au tableau
         document.getElementById('addRow').addEventListener('click', function () {
@@ -432,8 +451,29 @@
 
         document.getElementById('transactionForm').addEventListener('submit', function() {
     document.getElementById('debug_data').value = JSON.stringify(Object.fromEntries(new FormData(this)));
+    });
+
+    // Validation spécifique pour les retours
+    document.getElementById('returnForm').addEventListener('submit', function(e) {
+        const quantities = document.querySelectorAll('#returnForm input[name="quantity[]"]');
+        let isValid = true;
+        
+        quantities.forEach(input => {
+            const max = parseInt(input.getAttribute('max'));
+            const value = parseInt(input.value) || 0;
+            
+            if (value > max) {
+                alert(`La quantité retournée ne peut pas dépasser ${max}`);
+                isValid = false;
+            }
+        });
+
+        if (!isValid) {
+            e.preventDefault();
+        }
+    });
 });
 
-    });
+    
 </script>
 @endsection

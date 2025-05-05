@@ -107,7 +107,7 @@ class TransactionController extends Controller
 
     public function storeReturn(Request $request)
 {
-    dd($request->all());
+    
 
 
 
