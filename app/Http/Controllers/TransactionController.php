@@ -107,15 +107,10 @@ class TransactionController extends Controller
 
     public function storeReturn(Request $request)
 {
-    
-
-
-
-    // Validation des données reçues
     $validated = $request->validate([
         'sale_id' => 'required|exists:sales,id',
         'product_id.*' => 'required|exists:products,id',
-        'quantity.*' => 'required|integer|min:1',
+        'quantity.*' => 'required|integer|min:0', // Permettre 0 pour les produits non retournés
         'price.*' => 'required|numeric|min:0',
         'reason' => 'required|string|max:255',
     ]);
@@ -124,46 +119,57 @@ class TransactionController extends Controller
 
     try {
         $sale = Sale::findOrFail($validated['sale_id']);
+        $returnedProducts = [];
 
         foreach ($validated['product_id'] as $index => $productId) {
-            $product = Product::findOrFail($productId);
-            $quantity = abs($validated['quantity'][$index]);
-            $unitPrice = $validated['price'][$index];
-
-            // Enregistrement du retour sans supprimer d'anciennes données
-            $sale->products()->syncWithoutDetaching([
-                $productId => [
-                    'quantity' => -$quantity,
-                    'unit_price' => $unitPrice,
-                    'total_price' => $quantity * $unitPrice,
-                ]
-            ]);
-
-            // Mise à jour du stock du produit
-            if ($product->stock) {
-                $product->stock->increment('quantity', $quantity);
-            } else {
-                $product->update(['stock' => $product->stock + $quantity]);
+            $quantity = $validated['quantity'][$index];
+            
+            // Ignorer les produits avec quantité 0
+            if ($quantity <= 0) {
+                continue;
             }
 
+            $product = Product::findOrFail($productId);
+            $unitPrice = $validated['price'][$index];
+            
+            // Vérifier que la quantité retournée ne dépasse pas la quantité vendue
+            $soldQuantity = $sale->products()->where('product_id', $productId)->first()->pivot->quantity;
+            if ($quantity > $soldQuantity) {
+                throw new \Exception("La quantité retournée pour {$product->name} dépasse la quantité vendue.");
+            }
+
+            // Ajouter au tableau des produits retournés
+            $returnedProducts[$productId] = [
+                'quantity' => -$quantity,
+                'unit_price' => $unitPrice,
+                'total_price' => -($quantity * $unitPrice),
+            ];
+
+            // Mise à jour du stock
+            $product->stock->increment('quantity', $quantity);
+
             // Enregistrement de la transaction de retour
-            $transaction = Transaction::create([
+            Transaction::create([
                 'sale_id' => $sale->id,
                 'product_id' => $productId,
-                'quantity' => $quantity, // ✅ Correction ici
+                'quantity' => $quantity,
                 'price' => $unitPrice,
                 'type' => 'entry',
                 'reason' => $validated['reason'],
             ]);
-
-            if (!$transaction) {
-                throw new \Exception("La transaction de retour n'a pas pu être enregistrée.");
-            }
         }
 
-        // Appel correct à `recordTransactions()` depuis `SalesController`
-        $salesController = app(SalesController::class);
-        $salesController->recordTransactions($request, $sale, true);
+        // Mettre à jour la vente avec les produits retournés
+        foreach ($returnedProducts as $productId => $details) {
+            $sale->products()->syncWithoutDetaching([
+                $productId => $details
+            ]);
+        }
+
+        // Mettre à jour le montant total de la vente
+        $sale->update([
+            'total_amount' => $sale->total_amount - array_sum(array_column($returnedProducts, 'total_price'))
+        ]);
 
         DB::commit();
 

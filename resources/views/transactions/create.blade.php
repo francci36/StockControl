@@ -166,56 +166,71 @@
 
 <!-- JavaScript -->
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        // Gestion du type de transaction
-        const transactionType = document.getElementById('transaction_type');
-    const saleForm = document.getElementById('saleForm');
-    const returnForm = document.getElementById('returnForm');
-    
-    function updateTransactionType() {
-        const isReturn = transactionType.value === 'entry';
-        saleForm.classList.toggle('hidden', isReturn);
-        returnForm.classList.toggle('hidden', !isReturn);
-    }
-    
-    transactionType.addEventListener('change', updateTransactionType);
-    updateTransactionType();
+        document.addEventListener('DOMContentLoaded', function () {
+            // Gestion du type de transaction
+            const transactionType = document.getElementById('transaction_type');
+        const saleForm = document.getElementById('saleForm');
+        const returnForm = document.getElementById('returnForm');
+        
+        function updateTransactionType() {
+            const isReturn = transactionType.value === 'entry';
+            saleForm.classList.toggle('hidden', isReturn);
+            returnForm.classList.toggle('hidden', !isReturn);
+        }
+        
+        transactionType.addEventListener('change', updateTransactionType);
+        updateTransactionType();
 
-        
-          // Gestion des produits pour les retours
-    document.getElementById('sale_id').addEventListener('change', function() {
-        const selectedOption = this.options[this.selectedIndex];
-        const products = JSON.parse(selectedOption.dataset.products || '[]');
-        const tbody = document.getElementById('returnProductsBody');
-        
-        tbody.innerHTML = '';
-        
-        products.forEach(product => {
-            const row = document.createElement('tr');
-            row.className = 'border-b border-gray-300 dark:border-gray-600';
-            row.innerHTML = `
-                <td class="px-4 py-2">
-                    ${product.name}
-                    <input type="hidden" name="product_id[]" value="${product.id}">
-                </td>
-                <td class="px-4 py-2">${product.pivot.quantity}</td>
-                <td class="px-4 py-2">
-                    <input type="number" name="quantity[]" min="1" max="${product.pivot.quantity}" 
-                           class="w-full rounded-lg border-gray-300" required>
-                </td>
-                <td class="px-4 py-2">
-                    <input type="number" name="price[]" value="${product.pivot.unit_price}" 
-                           class="w-full rounded-lg border-gray-300" readonly>
-                </td>
-                <td class="px-4 py-2 text-center">
-                    <button type="button" class="remove-return-row bg-red-500 hover:bg-red-700 text-white p-2 rounded">
-                        Supprimer
-                    </button>
-                </td>
-            `;
-            tbody.appendChild(row);
+            
+            // Gestion des produits pour les retours
+                document.getElementById('sale_id').addEventListener('change', function() {
+            const selectedOption = this.options[this.selectedIndex];
+            const products = JSON.parse(selectedOption.dataset.products || '[]');
+            const tbody = document.getElementById('returnProductsBody');
+            
+            tbody.innerHTML = '';
+            
+            products.forEach(product => {
+                const row = document.createElement('tr');
+                row.className = 'border-b border-gray-300 dark:border-gray-600';
+                row.innerHTML = `
+                    <td class="px-4 py-2">
+                        ${product.name}
+                        <input type="hidden" name="product_id[]" value="${product.id}">
+                    </td>
+                    <td class="px-4 py-2">${product.pivot.quantity}</td>
+                    <td class="px-4 py-2">
+                        <input type="number" name="quantity[]" min="0" max="${product.pivot.quantity}" 
+                            value="0" class="w-full rounded-lg border-gray-300 return-quantity">
+                    </td>
+                    <td class="px-4 py-2">
+                        <input type="number" name="price[]" value="${product.pivot.unit_price}" 
+                            class="w-full rounded-lg border-gray-300" readonly>
+                    </td>
+                    <td class="px-4 py-2 text-center">
+                        <button type="button" class="remove-return-row bg-red-500 hover:bg-red-700 text-white p-2 rounded">
+                            Supprimer
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+            // Ajouter un événement pour calculer le total
+            tbody.addEventListener('input', function(e) {
+                if (e.target.classList.contains('return-quantity')) {
+                    calculateReturnTotal();
+                }
+            });
         });
-    });
+                function calculateReturnTotal() {
+                let total = 0;
+                document.querySelectorAll('#returnProductsBody tr').forEach(row => {
+                    const quantity = parseFloat(row.querySelector('.return-quantity').value) || 0;
+                    const price = parseFloat(row.querySelector('input[name="price[]"]').value) || 0;
+                    total += quantity * price;
+                });
+                document.getElementById('total_amount').value = total.toFixed(2);
+            }
         
         // Ajout d'une nouvelle ligne au tableau
         document.getElementById('addRow').addEventListener('click', function () {
