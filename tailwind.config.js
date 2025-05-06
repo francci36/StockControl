@@ -7,6 +7,8 @@ export default {
         './vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php',
         './storage/framework/views/*.php',
         './resources/views/**/*.blade.php',
+        './resources/css/**/*.css',  // ✅ Ajout des fichiers CSS
+        './resources/js/**/*.js',    // ✅ Ajout des fichiers JS
     ],
 
     darkMode: 'class', // Active le mode sombre basé sur la classe

@@ -16,6 +16,8 @@ use App\Http\Controllers\SalesController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AdminController;
 use Illuminate\Support\Facades\DB;
+use App\Models\Product;
+use Illuminate\Http\Request;
 
 // Route pour afficher les tables (utilitaire/debug)
 Route::get('/list-tables', function () {
@@ -70,6 +72,8 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/stocks/{stock}', [StockController::class, 'destroy'])->name('stocks.destroy');
     Route::get('/api/stock-data', [DashboardController::class, 'getStockData']);
     Route::get('/dashboard/stock-data', [DashboardController::class, 'getStockData']);
+
+    
 
     // Routes pour les transactions
     Route::get('/transactions', [TransactionController::class, 'index'])->name('transactions.index');
