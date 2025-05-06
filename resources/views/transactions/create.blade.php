@@ -77,6 +77,7 @@
                 <option value="paypal">PayPal</option>
                 <option value="stripe">Stripe</option>
                 <option value="bank_transfer">Virement bancaire</option>
+                <option value="check">Chèque</option>
             </select>
         </div>
         

@@ -15,17 +15,48 @@ class OrderController extends Controller
     /**
      * Affiche la liste des commandes.
      */
-    public function index()
-    {
-        if (!auth()->check() || !in_array(auth()->user()->role, ['admin', 'manager', 'user'])) {
-            abort(403, 'Accès interdit.');
-        }
-
-        $orders = Order::with(['user', 'supplier', 'products'])->paginate(20); // Pagination
-
-        return view('orders.index', compact('orders'));
+    public function index(Request $request)
+{
+    if (!auth()->check() || !in_array(auth()->user()->role, ['admin', 'manager', 'user'])) {
+        abort(403, 'Accès interdit.');
     }
 
+    // Récupération des fournisseurs pour le filtre
+    $suppliers = Supplier::all();
+
+    // Requête de base
+    $query = Order::with(['user', 'supplier', 'products']);
+
+    // Filtre de recherche
+    if ($request->has('search') && !empty($request->search)) {
+        $search = $request->input('search');
+        $query->where(function($q) use ($search) {
+            $q->where('id', 'like', "%$search%")
+              ->orWhereHas('supplier', function($q) use ($search) {
+                  $q->where('name', 'like', "%$search%");
+              });
+        });
+    }
+
+    // Filtre par fournisseur
+    if ($request->has('supplier_id') && !empty($request->supplier_id)) {
+        $query->where('supplier_id', $request->supplier_id);
+    }
+
+    // Pour les requêtes AJAX
+    if ($request->ajax()) {
+        $orders = $query->paginate(20);
+        return response()->json([
+            'html' => view('orders.partials.table', compact('orders'))->render(),
+            'pagination' => $orders->links()->toHtml()
+        ]);
+    }
+
+    // Requête normale
+    $orders = $query->paginate(20);
+
+    return view('orders.index', compact('orders', 'suppliers'));
+}
 
     /**
      * Affiche le formulaire de création d'une commande pour un fournisseur donné.

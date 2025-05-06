@@ -11,18 +11,53 @@ use Illuminate\Http\Request;
 
 class SalesController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         if (!auth()->check() || !in_array(auth()->user()->role, ['admin', 'manager', 'user'])) {
             abort(403, 'Accès interdit.');
         }
-
-        $sales = Sale::with(['products', 'transactions'])
-            ->orderBy('created_at', 'desc')
-            ->paginate(10);
-
-        return view('sales.index', compact('sales'));
+    
+        // Mapping des modes de paiement
+        $paymentModes = [
+            'cash' => 'Espèces',
+            'credit_card' => 'Carte bancaire', 
+            'paypal' => 'PayPal',
+            'stripe' => 'Stripe',
+            'bank_transfer' => 'Virement',
+            'check' => 'Chèque'
+        ];
+    
+        $query = Sale::with(['products', 'transactions'])
+                    ->orderBy('created_at', 'desc');
+    
+        // Filtre par recherche textuelle
+        if ($request->has('search') && !empty($request->search)) {
+            $search = $request->input('search');
+            $query->where(function($q) use ($search) {
+                $q->where('payment_mode', 'like', "%$search%")
+                  ->orWhereHas('products', function($q) use ($search) {
+                      $q->where('name', 'like', "%$search%");
+                  });
+            });
+        }
+    
+        // Filtre par mode de paiement
+        if ($request->has('payment_mode') && !empty($request->payment_mode)) {
+            $query->where('payment_mode', $request->payment_mode);
+        }
+    
+        if ($request->ajax()) {
+            $sales = $query->paginate(10);
+            return response()->json([
+                'html' => view('sales.partials.table', compact('sales'))->render(),
+                'pagination' => $sales->links()->toHtml()
+            ]);
+        }
+    
+        $sales = $query->paginate(10);
+        return view('sales.index', compact('sales', 'paymentModes'));
     }
+
 
     public function store(Request $request)
     {

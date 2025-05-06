@@ -100,6 +100,7 @@ Route::middleware(['auth'])->group(function () {
     Route::patch('/suppliers/{id}', [SupplierController::class, 'update'])->name('suppliers.update');
     Route::post('/suppliers/store-with-products', [SupplierController::class, 'storeWithProducts'])->name('suppliers.storeWithProducts');
 
+
     // Routes pour les rapports
     Route::get('/rapports', [RapportController::class, 'index'])->name('rapports.index');
 });

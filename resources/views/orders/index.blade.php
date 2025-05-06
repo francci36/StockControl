@@ -12,77 +12,130 @@
             </h1>
         </div>
 
+        <!-- Barre de recherche et filtres -->
+        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+            <form id="search-form" class="flex flex-col md:flex-row gap-4">
+                <!-- Champ de recherche -->
+                <div class="flex-grow">
+                    <input type="text" name="search" id="live-search" 
+                           value="{{ request('search') }}"
+                           class="w-full px-4 py-2 border rounded-md bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 focus:ring-blue-300 dark:focus:ring-blue-500" 
+                           placeholder="🔍 Rechercher par ID ou nom de fournisseur...">
+                </div>
+                
+                <!-- Filtre par fournisseur -->
+                <div class="w-full md:w-64">
+                    <select name="supplier_id" id="supplier-filter" class="w-full px-4 py-2 border rounded-md bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 focus:ring-blue-300 dark:focus:ring-blue-500">
+                        <option value="">Tous les fournisseurs</option>
+                        @foreach($suppliers as $supplier)
+                            <option value="{{ $supplier->id }}" {{ request('supplier_id') == $supplier->id ? 'selected' : '' }}>
+                                {{ $supplier->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                
+                <!-- Bouton de réinitialisation -->
+                <button type="button" id="reset-filters" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 transition">
+                    Réinitialiser
+                </button>
+            </form>
+        </div>
+
         <!-- Tableau des commandes -->
         <div class="px-6 py-4">
-            <div class="overflow-x-auto">
-                <table class="table-auto w-full border-collapse border border-gray-200 dark:border-gray-600 text-sm">
-                    <thead class="bg-blue-50 dark:bg-blue-900">
-                        <tr>
-                            <th class="border px-4 py-2 text-left text-gray-700 dark:text-gray-200 font-medium">ID</th>
-                            <th class="border px-4 py-2 text-left text-gray-700 dark:text-gray-200 font-medium">Fournisseur</th>
-                            <th class="border px-4 py-2 text-left text-gray-700 dark:text-gray-200 font-medium">Date</th>
-                            <th class="border px-4 py-2 text-left text-gray-700 dark:text-gray-200 font-medium">Statut</th>
-                            <th class="border px-4 py-2 text-left text-gray-700 dark:text-gray-200 font-medium">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-600">
-                        @foreach ($orders as $order)
-                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition duration-200">
-                            <td class="border px-4 py-2 text-gray-800 dark:text-gray-200">{{ $order->id }}</td>
-                            <td class="border px-4 py-2 text-gray-800 dark:text-gray-200">
-                                {{ $order->supplier ? $order->supplier->name : 'Aucun fournisseur' }}
-                            </td>
-                            <td class="border px-4 py-2 text-gray-800 dark:text-gray-200">{{ $order->date->format('d/m/Y') }}</td>
-                            <td class="border px-4 py-2">
-                                <span class="px-2 py-1 text-sm rounded-full {{ $order->status === 'en attente' ? 'bg-yellow-100 dark:bg-yellow-800 text-yellow-800 dark:text-yellow-100' : 'bg-green-100 dark:bg-green-800 text-green-800 dark:text-green-100' }}">
-                                    {{ ucfirst($order->status) }}
-                                </span>
-                            </td>
-                            <td class="border px-4 py-2">
-                                <div class="flex gap-2">
-                                    <!-- Lien pour voir les détails de la commande -->
-                                    <a href="{{ route('orders.show', $order->id) }}" class="bg-blue-500 hover:bg-blue-700 text-white text-sm font-bold py-1 px-3 rounded">
-                                        <i class="fas fa-eye"></i>
-                                    </a>
-
-                                    <!-- Formulaire de mise à jour du statut -->
-                                    <form action="{{ route('orders.updateStatus', $order->id) }}" method="POST" class="inline">
-                                        @csrf
-                                        @method('PATCH')
-                                        <select name="status" class="form-select text-sm rounded-lg border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-500">
-                                            <option value="en attente" {{ $order->status === 'en attente' ? 'selected' : '' }}>En attente</option>
-                                            <option value="arrivé" {{ $order->status === 'arrivé' ? 'selected' : '' }}>Arrivé</option>
-                                        </select>
-                                        <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white text-sm font-bold py-1 px-3 rounded">
-                                            <i class="fas fa-sync-alt"></i>
-                                        </button>
-                                    </form>
-
-                                    <!-- Formulaire de suppression -->
-                                     @if(auth()->user()->role === 'admin' || auth()->user()->role === 'manager')
-                                        <form action="{{ route('orders.destroy', $order->id) }}" method="POST" class="inline">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="bg-red-500 hover:bg-red-700 text-white text-sm font-bold py-1 px-3 rounded" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette commande ?')">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </form>
-                                    @endif
-                                </div>
-                            </td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+            <div id="orders-table-container">
+                @include('orders.partials.table', ['orders' => $orders])
             </div>
         </div>
 
         <!-- Pagination -->
         <div class="px-6 py-4">
-            <div class="flex justify-end">
-                {{ $orders->links() }}
+            <div id="pagination-links" class="flex justify-end">
+                {{ $orders->appends(request()->query())->links() }}
             </div>
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const liveSearch = document.getElementById('live-search');
+    const supplierFilter = document.getElementById('supplier-filter');
+    const resetFilters = document.getElementById('reset-filters');
+    let debounceTimer;
+
+    // Fonction pour charger les résultats
+    function fetchOrders() {
+        const searchTerm = liveSearch.value;
+        const supplierId = supplierFilter.value;
+        
+        const params = new URLSearchParams();
+        if (searchTerm) params.append('search', searchTerm);
+        if (supplierId) params.append('supplier_id', supplierId);
+        params.append('ajax', '1');
+
+        fetch(`{{ route('orders.index') }}?${params.toString()}`, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
+            }
+        })
+        .then(response => {
+            if (!response.ok) throw new Error('Erreur réseau');
+            return response.json();
+        })
+        .then(data => {
+            document.getElementById('orders-table-container').innerHTML = data.html;
+            document.getElementById('pagination-links').innerHTML = data.pagination;
+            
+            // Réattacher les événements de pagination
+            document.querySelectorAll('.pagination a').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    fetchPage(this.href);
+                });
+            });
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+        });
+    }
+
+    // Fonction pour charger une page spécifique
+    function fetchPage(url) {
+        fetch(url, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('orders-table-container').innerHTML = data.html;
+            document.getElementById('pagination-links').innerHTML = data.pagination;
+        });
+    }
+
+    // Recherche en temps réel avec debounce
+    liveSearch.addEventListener('input', function() {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(fetchOrders, 300);
+    });
+
+    // Filtre par fournisseur
+    supplierFilter.addEventListener('change', fetchOrders);
+
+    // Réinitialisation des filtres
+    resetFilters.addEventListener('click', function() {
+        liveSearch.value = '';
+        supplierFilter.value = '';
+        fetchOrders();
+    });
+
+    // Chargement initial si filtres présents
+    @if(request('search') || request('supplier_id'))
+        fetchOrders();
+    @endif
+});
+</script>
 @endsection
