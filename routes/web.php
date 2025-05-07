@@ -15,8 +15,14 @@ use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\SalesController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\CartController;
 use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\CheckoutController;
+
+
 use App\Models\Product;
+use App\Models\Category; 
+
 use Illuminate\Http\Request;
 
 // Route pour afficher les tables (utilitaire/debug)
@@ -133,4 +139,28 @@ Route::middleware(['auth'])->group(function () {
 
 // routes pour les boutiques
 Route::get('/boutique', [ProductController::class, 'storefront'])->name('storefront');
+Route::get('/contact', function () {
+    $categories = Category::all();
+    return view('storefront.contact', compact('categories'));
+})->name('contact');
+Route::post('/contact', function () {
+    // Logique pour traiter le formulaire (ex: envoi d'email)
+    return redirect()->route('contact')->with('success', 'Message envoyé avec succès !');
+})->name('contact.submit');
 
+// Routes du panier
+Route::prefix('cart')->group(function () {
+    Route::get('/cart/count', [CartController::class, 'count'])->name('cart.count');
+    Route::get('/', [CartController::class, 'index'])->name('cart.show');
+    Route::post('/add', [CartController::class, 'add'])->name('cart.add');
+    Route::post('/remove', [CartController::class, 'remove'])->name('cart.remove');
+    Route::post('/update', [CartController::class, 'update'])->name('cart.update');
+    Route::post('/clear', [CartController::class, 'clear'])->name('cart.clear');
+});
+
+// Routes du checkout
+Route::prefix('checkout')->group(function () {
+    Route::get('/', [CheckoutController::class, 'show'])->name('checkout.show');
+    Route::post('/process', [CheckoutController::class, 'process'])->name('checkout.process');
+    Route::get('/success/{order}', [CheckoutController::class, 'success'])->name('checkout.success');
+});

@@ -53,6 +53,10 @@ class Product extends Model
             ->withTimestamps();
     }
 
+    public function categories()
+    {
+        return $this->belongsToMany(Category::class);
+    }
 
 
 }

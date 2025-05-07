@@ -1,28 +1,82 @@
-@extends('layouts.app')
+@extends('layouts.storefront')
 
 @section('title', 'Boutique')
+@section('page-title', $activeCategory->name ?? 'Nos Produits')
+
+@section('breadcrumb')
+    <li class="breadcrumb-item"><a href="{{ route('storefront') }}">Accueil</a></li>
+    @if($activeCategory)
+    <li class="breadcrumb-item active">{{ $activeCategory->name }}</li>
+    @endif
+@endsection
 
 @section('content')
-<div class="container mx-auto py-6">
-    <h2 class="text-3xl font-semibold text-center text-blue-600 dark:text-blue-400">Nos produits</h2>
-
+<div class="row">
     <!-- Barre de recherche -->
-    <div class="my-6 text-center">
-        <input type="text" id="search-product" placeholder="🔍 Rechercher un produit..."
-               class="px-4 py-2 border rounded-md bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200">
+    <div class="col-12 mb-4">
+        <form action="{{ route('storefront') }}" method="GET">
+            <div class="input-group">
+                <input type="text" name="search" class="form-control" 
+                       placeholder="Rechercher un produit..." value="{{ request('search') }}">
+                <div class="input-group-append">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+        </form>
     </div>
 
-    <!-- Affichage des produits -->
-    <div id="product-list" class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        @foreach($products as $product)
-        <div class="bg-white dark:bg-gray-800 shadow-md rounded-lg p-4 text-center">
-            <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}" class="w-full h-40 object-cover rounded-lg mb-4">
-            <h3 class="text-lg font-bold text-gray-700 dark:text-gray-200">{{ $product->name }}</h3>
-            <p class="text-gray-500 dark:text-gray-400">{{ $product->description }}</p>
-            <p class="text-lg font-semibold text-blue-600 dark:text-blue-400 mt-2">{{ number_format($product->price, 2) }} €</p>
-            <a href="#" class="mt-4 bg-blue-500 hover:bg-blue-700 text-white px-4 py-2 rounded-lg">Acheter</a>
+    <!-- Liste des produits -->
+    @foreach($products as $product)
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <img src="{{ asset('storage/' . $product->image) }}" 
+                 class="card-img-top" 
+                 alt="{{ $product->name }}"
+                 style="height: 200px; object-fit: cover;">
+            
+            <div class="card-body">
+                <h5 class="card-title">{{ $product->name }}</h5>
+                <p class="card-text text-muted">{{ Str::limit($product->description, 100) }}</p>
+                
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="h5 text-primary">{{ number_format($product->price, 2) }} €</span>
+                    <button class="btn btn-sm btn-outline-primary add-to-cart" 
+                            data-product-id="{{ $product->id }}">
+                        <i class="fas fa-cart-plus"></i> Ajouter
+                    </button>
+                </div>
+            </div>
         </div>
-        @endforeach
+    </div>
+    @endforeach
+
+    <!-- Pagination -->
+    <div class="col-12">
+        {{ $products->appends(request()->query())->links() }}
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+        $(document).ready(function() {
+        // Ajout au panier
+        $('.add-to-cart').click(function() {
+            const productId = $(this).data('product-id');
+            
+            $.post('{{ route("cart.add") }}', {
+                _token: '{{ csrf_token() }}',
+                product_id: productId,
+                quantity: 1
+            }, function() {
+                updateCartCount();
+                toastr.success('Produit ajouté au panier');
+            }).fail(function() {
+                toastr.error('Une erreur est survenue');
+            });
+        });
+    });
+</script>
+@endpush

@@ -115,13 +115,44 @@ class ProductController extends Controller
         ]);
     }
 
-    public function storefront()
+    public function storefront(Request $request)
     {
-        $products = Product::whereHas('stock', function ($query) {
-            $query->where('quantity', '>', 0);
-        })->get();
+        // Récupérer toutes les catégories
+        $categories = \App\Models\Category::all();
+        
+        // Récupérer la catégorie active
+        $activeCategory = null;
+        if ($request->has('category')) {
+            $activeCategory = \App\Models\Category::find($request->category);
+        }
 
-        return view('storefront.index', compact('products'));
+        // Construire la requête de produits
+        $query = Product::query()
+            ->whereHas('stock', function($query) {
+                $query->where('quantity', '>', 0);
+            })
+            ->with('categories');
+
+        // Filtrer par catégorie si spécifié
+        if ($request->filled('category')) {
+            $query->whereHas('categories', function($q) use ($request) {
+                $q->where('id', $request->category);
+            });
+        }
+
+        // Filtrer par recherche si spécifié
+        if ($request->filled('search')) {
+            $searchTerm = $request->search;
+            $query->where(function($q) use ($searchTerm) {
+                $q->where('name', 'like', '%'.$searchTerm.'%')
+                ->orWhere('description', 'like', '%'.$searchTerm.'%');
+            });
+        }
+
+        // Paginer les résultats (20 par page)
+        $products = $query->paginate(20);
+
+        return view('storefront.index', compact('products', 'categories', 'activeCategory'));
     }
 
 
