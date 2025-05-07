@@ -36,9 +36,9 @@ class Product extends Model
     }
 
     public function stock()
-{
-    return $this->hasOne(Stock::class, 'product_id', 'id');
-}
+    {
+        return $this->hasOne(Stock::class, 'product_id', 'id');
+    }
 
 
     public function getStockThresholdAttribute($value)

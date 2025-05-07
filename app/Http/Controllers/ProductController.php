@@ -114,4 +114,16 @@ class ProductController extends Controller
             'stock_threshold' => 'nullable|integer|min:5', // Seuil optionnel mais >= 5
         ]);
     }
+
+    public function storefront()
+    {
+        $products = Product::whereHas('stock', function ($query) {
+            $query->where('quantity', '>', 0);
+        })->get();
+
+        return view('storefront.index', compact('products'));
+    }
+
+
+
 }
