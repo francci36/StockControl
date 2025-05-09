@@ -84,6 +84,8 @@ Route::middleware(['auth'])->group(function () {
     // Routes pour les transactions
     Route::get('/transactions', [TransactionController::class, 'index'])->name('transactions.index');
     Route::get('/transactions/create', [TransactionController::class, 'create'])->name('transactions.create');
+    Route::post('/transactions/create', [TransactionController::class, 'create'])->name('transactions.createFromCart');
+
     Route::post('/transactions', [TransactionController::class, 'store'])->name('transactions.store');
     Route::post('/transactions/return', [TransactionController::class, 'storeReturn'])->name('transactions.storeReturn');
 
@@ -156,6 +158,7 @@ Route::prefix('cart')->group(function () {
     Route::post('/remove', [CartController::class, 'remove'])->name('cart.remove');
     Route::post('/update', [CartController::class, 'update'])->name('cart.update');
     Route::post('/clear', [CartController::class, 'clear'])->name('cart.clear');
+    
 });
 
 // Routes du checkout

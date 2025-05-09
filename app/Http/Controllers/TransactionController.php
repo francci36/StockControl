@@ -6,8 +6,12 @@ use App\Models\Product;
 use App\Models\Transaction;
 use App\Models\Sale;
 use App\Http\Controllers\SalesController;
+use App\Http\Controllers\CartController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+
+
+use Illuminate\Support\Facades\Session;
 
 class TransactionController extends Controller
 {
@@ -44,6 +48,7 @@ class TransactionController extends Controller
 
     public function create()
     {
+        // Vue normale pour créer une transaction
         if (!auth()->check() || !in_array(auth()->user()->role, ['admin', 'manager', 'user'])) {
             abort(403, 'Accès interdit.');
         }
@@ -51,7 +56,29 @@ class TransactionController extends Controller
         $products = Product::with('stock')->get();
         $sales = Sale::where('status', 'completed')->orderBy('created_at', 'desc')->get();
 
-        return view('transactions.create', compact('products', 'sales'));
+        return view('transactions.create', [
+            'products' => $products,
+            'sales' => $sales,
+            'from_cart' => false
+        ]);
+    }
+
+    public function createFromCart()
+    {
+        // Vue spéciale pour le checkout depuis le panier
+        if (!Session::has('checkout_data')) {
+            return redirect()->route('transactions.create');
+        }
+
+        $products = Product::whereIn('id', array_keys(Session::get('checkout_data.cart_items')))
+                        ->with('stock')
+                        ->get();
+
+        return view('transactions.create', [
+            'products' => $products,
+            'from_cart' => true,
+            'checkout_data' => Session::get('checkout_data')
+        ]);
     }
 
     public function store(Request $request)
@@ -100,86 +127,98 @@ class TransactionController extends Controller
                 'type' => 'exit',
                 'reason' => $request->input('reason')[$index] ?? 'Vente client',
             ]);
+
+            // Si c'était une commande depuis le panier
+            if ($request->has('from_cart')) {
+                // Vider le panier
+                Session::forget('cart');
+                // Nettoyer les données temporaires
+                app(CartController::class)->clearCheckoutData();
+                
+                return redirect()->route('transactions.create')
+                                ->with('success', 'Paiement effectué et panier vidé !');
+            }
         }
 
         return redirect()->route('sales.index')->with('success', 'Vente enregistrée !');
     }
 
     public function storeReturn(Request $request)
-{
-    $validated = $request->validate([
-        'sale_id' => 'required|exists:sales,id',
-        'product_id.*' => 'required|exists:products,id',
-        'quantity.*' => 'required|integer|min:0', // Permettre 0 pour les produits non retournés
-        'price.*' => 'required|numeric|min:0',
-        'reason' => 'required|string|max:255',
-    ]);
-
-    DB::beginTransaction();
-
-    try {
-        $sale = Sale::findOrFail($validated['sale_id']);
-        $returnedProducts = [];
-
-        foreach ($validated['product_id'] as $index => $productId) {
-            $quantity = $validated['quantity'][$index];
-            
-            // Ignorer les produits avec quantité 0
-            if ($quantity <= 0) {
-                continue;
-            }
-
-            $product = Product::findOrFail($productId);
-            $unitPrice = $validated['price'][$index];
-            
-            // Vérifier que la quantité retournée ne dépasse pas la quantité vendue
-            $soldQuantity = $sale->products()->where('product_id', $productId)->first()->pivot->quantity;
-            if ($quantity > $soldQuantity) {
-                throw new \Exception("La quantité retournée pour {$product->name} dépasse la quantité vendue.");
-            }
-
-            // Ajouter au tableau des produits retournés
-            $returnedProducts[$productId] = [
-                'quantity' => -$quantity,
-                'unit_price' => $unitPrice,
-                'total_price' => -($quantity * $unitPrice),
-            ];
-
-            // Mise à jour du stock
-            $product->stock->increment('quantity', $quantity);
-
-            // Enregistrement de la transaction de retour
-            Transaction::create([
-                'sale_id' => $sale->id,
-                'product_id' => $productId,
-                'quantity' => $quantity,
-                'price' => $unitPrice,
-                'type' => 'entry',
-                'reason' => $validated['reason'],
-            ]);
-        }
-
-        // Mettre à jour la vente avec les produits retournés
-        foreach ($returnedProducts as $productId => $details) {
-            $sale->products()->syncWithoutDetaching([
-                $productId => $details
-            ]);
-        }
-
-        // Mettre à jour le montant total de la vente
-        $sale->update([
-            'total_amount' => $sale->total_amount - array_sum(array_column($returnedProducts, 'total_price'))
+    {
+        $validated = $request->validate([
+            'sale_id' => 'required|exists:sales,id',
+            'product_id.*' => 'required|exists:products,id',
+            'quantity.*' => 'required|integer|min:0', // Permettre 0 pour les produits non retournés
+            'price.*' => 'required|numeric|min:0',
+            'reason' => 'required|string|max:255',
         ]);
 
-        DB::commit();
+        DB::beginTransaction();
 
-        return redirect()->route('sales.index')->with('success', 'Retour enregistré avec succès !');
+        try {
+            $sale = Sale::findOrFail($validated['sale_id']);
+            $returnedProducts = [];
 
-    } catch (\Exception $e) {
-        DB::rollBack();
-        return back()->withErrors(['error' => 'Erreur : ' . $e->getMessage()]);
+            foreach ($validated['product_id'] as $index => $productId) {
+                $quantity = $validated['quantity'][$index];
+                
+                // Ignorer les produits avec quantité 0
+                if ($quantity <= 0) {
+                    continue;
+                }
+
+                $product = Product::findOrFail($productId);
+                $unitPrice = $validated['price'][$index];
+                
+                // Vérifier que la quantité retournée ne dépasse pas la quantité vendue
+                $soldQuantity = $sale->products()->where('product_id', $productId)->first()->pivot->quantity;
+                if ($quantity > $soldQuantity) {
+                    throw new \Exception("La quantité retournée pour {$product->name} dépasse la quantité vendue.");
+                }
+
+                // Ajouter au tableau des produits retournés
+                $returnedProducts[$productId] = [
+                    'quantity' => -$quantity,
+                    'unit_price' => $unitPrice,
+                    'total_price' => -($quantity * $unitPrice),
+                ];
+
+                // Mise à jour du stock
+                $product->stock->increment('quantity', $quantity);
+
+                // Enregistrement de la transaction de retour
+                Transaction::create([
+                    'sale_id' => $sale->id,
+                    'product_id' => $productId,
+                    'quantity' => $quantity,
+                    'price' => $unitPrice,
+                    'type' => 'entry',
+                    'reason' => $validated['reason'],
+                ]);
+            }
+
+            // Mettre à jour la vente avec les produits retournés
+            foreach ($returnedProducts as $productId => $details) {
+                $sale->products()->syncWithoutDetaching([
+                    $productId => $details
+                ]);
+            }
+
+            // Mettre à jour le montant total de la vente
+            $sale->update([
+                'total_amount' => $sale->total_amount - array_sum(array_column($returnedProducts, 'total_price'))
+            ]);
+
+            DB::commit();
+
+            return redirect()->route('sales.index')->with('success', 'Retour enregistré avec succès !');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->withErrors(['error' => 'Erreur : ' . $e->getMessage()]);
+        }
     }
-}
+    
 
 
 

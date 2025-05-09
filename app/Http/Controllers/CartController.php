@@ -58,15 +58,20 @@ class CartController extends Controller
         if (empty($cart)) {
             return redirect()->route('cart.index')->with('error', 'Votre panier est vide');
         }
-
-        // Stocker les éléments du panier et le total dans la session
-        Session::put([
-            'from_cart' => true,
+    
+        // Stocker temporairement les données du panier
+        Session::put('checkout_data', [
             'cart_items' => $cart,
             'cart_total' => $this->calculateTotal($cart)
         ]);
-
-        return redirect()->route('transactions.create');
+    
+        return redirect()->route('transactions.createFromCart');
+    }
+    
+    
+    protected function clearCheckoutData()
+    {
+        Session::forget('checkout_data');
     }
 
     protected function calculateTotal($cart)
