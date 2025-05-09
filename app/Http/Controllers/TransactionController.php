@@ -91,6 +91,7 @@ class TransactionController extends Controller
             'total_amount' => 'required|numeric|min:0',
         ]);
 
+        // Vérification du stock
         foreach ($request->product_id as $index => $productId) {
             $product = Product::findOrFail($productId);
             if ($request->quantity[$index] > $product->stock->quantity) {
@@ -98,6 +99,7 @@ class TransactionController extends Controller
             }
         }
 
+        // Création de la vente
         $sale = Sale::create([
             'payment_mode' => $request->payment_mode,
             'total_price' => $request->total_amount,
@@ -106,6 +108,7 @@ class TransactionController extends Controller
             'user_id' => auth()->id(),
         ]);
 
+        // Traitement des produits
         foreach ($request->product_id as $index => $productId) {
             $product = Product::findOrFail($productId);
             $quantity = $request->quantity[$index];
@@ -122,26 +125,28 @@ class TransactionController extends Controller
 
             Transaction::create([
                 'product_id' => $productId,
-                'quantity' => abs($quantity), // ✅ Toujours positif pour les ventes
+                'quantity' => abs($quantity),
                 'price' => $unitPrice,
                 'type' => 'exit',
                 'reason' => $request->input('reason')[$index] ?? 'Vente client',
             ]);
+        }
 
-            // Si c'était une commande depuis le panier
-            if ($request->has('from_cart')) {
-                // Vider le panier
-                Session::forget('cart');
-                // Nettoyer les données temporaires
-                app(CartController::class)->clearCheckoutData();
-                
-                return redirect()->route('transactions.create')
-                                ->with('success', 'Paiement effectué et panier vidé !');
-            }
+        // Vidage du panier si la commande vient du panier
+        if (session('from_cart')) {  // Vérification dans la session plutôt que la requête
+            Session::forget('cart'); // Vider directement le panier
+            Session::forget('from_cart'); // Nettoyer le flag
+            Session::forget('cart_items'); // Nettoyer les données temporaires
+            Session::forget('cart_total'); // Nettoyer le total
+            
+            return redirect()->route('transactions.create')
+                            ->with('success', 'Paiement effectué et panier vidé !');
         }
 
         return redirect()->route('sales.index')->with('success', 'Vente enregistrée !');
     }
+
+
 
     public function storeReturn(Request $request)
     {

@@ -58,17 +58,33 @@ class CartController extends Controller
         if (empty($cart)) {
             return redirect()->route('cart.index')->with('error', 'Votre panier est vide');
         }
-    
-        // Stocker temporairement les données du panier
-        Session::put('checkout_data', [
-            'cart_items' => $cart,
-            'cart_total' => $this->calculateTotal($cart)
+
+        // Préparer les données pour la vue de transaction
+        $cart_items = [];
+        $total = 0;
+        
+        foreach ($cart as $id => $item) {
+            $product = Product::find($id);
+            if ($product) {
+                $cart_items[] = [
+                    'id' => $id,
+                    'name' => $item['name'],
+                    'price' => $item['price'],
+                    'quantity' => $item['quantity'],
+                    'stock' => $product->stock->quantity ?? 0
+                ];
+                $total += $item['price'] * $item['quantity'];
+            }
+        }
+
+        return redirect()->route('transactions.create')->with([
+            'from_cart' => true,
+            'cart_items' => $cart_items,
+            'cart_total' => $total
         ]);
-    
-        return redirect()->route('transactions.createFromCart');
     }
     
-    
+
     protected function clearCheckoutData()
     {
         Session::forget('checkout_data');
@@ -101,10 +117,11 @@ class CartController extends Controller
         ]);
     }
 
+    
     public function clear()
     {
         Session::forget('cart');
-        return redirect()->route('cart.show')->with('success', 'Panier vidé avec succès');
+        return response()->json(['success' => true]);
     }
 
     public function update(Request $request)

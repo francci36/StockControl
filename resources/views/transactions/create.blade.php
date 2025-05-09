@@ -56,36 +56,39 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @if(isset($from_cart) && $from_cart)
-                        <!-- Mode Panier - Produits pré-remplis -->
-                        @foreach($cart_items as $id => $item)
-                        <tr>
-                            <td class="px-4 py-2 border border-gray-300 dark:border-gray-600">
-                                <select name="product_id[]" class="product-select form-select w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-800 dark:text-gray-200 rounded-lg" required>
-                                    <option value="{{ $id }}" data-price="{{ $item['price'] }}" selected>
-                                        {{ $item['name'] }} ({{ number_format($item['price'], 2, ',', ' ') }} €)
-                                    </option>
-                                </select>
-                            </td>
-                            <td class="px-4 py-2 border border-gray-300 dark:border-gray-600">
-                                <input type="number" name="quantity[]" 
-                                       value="{{ $item['quantity'] }}" 
-                                       class="quantity-input form-input w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-800 dark:text-gray-200 rounded-lg" 
-                                       required min="1">
-                            </td>
-                            <td class="px-4 py-2 border border-gray-300 dark:border-gray-600">
-                                <input type="number" name="price[]" 
-                                       value="{{ $item['price'] }}" 
-                                       class="price-input form-input w-full bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-800 dark:text-gray-200 rounded-lg" 
-                                       readonly>
-                            </td>
-                            <td class="px-4 py-2 border border-gray-300 dark:border-gray-600">
-                                <input type="number" name="total[]" 
-                                       value="{{ $item['price'] * $item['quantity'] }}" 
-                                       class="total-input form-input w-full bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-800 dark:text-gray-200 rounded-lg" 
-                                       readonly>
-                            </td>
-                        </tr>
+                @if(session('from_cart'))
+                <!-- Mode Panier -->
+                     @foreach(session('cart_items') as $item)
+                            <tr>
+                                <td class="px-4 py-2 border border-gray-300 dark:border-gray-600">
+                                    <select name="product_id[]" class="product-select form-select w-full" required>
+                                        <option value="{{ $item['id'] }}" 
+                                                data-price="{{ $item['price'] }}" 
+                                                data-stock="{{ $item['stock'] }}" 
+                                                selected>
+                                            {{ $item['name'] }} ({{ number_format($item['price'], 2) }} €)
+                                        </option>
+                                    </select>
+                                </td>
+                                <td class="px-4 py-2 border border-gray-300 dark:border-gray-600">
+                                    <input type="number" name="quantity[]" 
+                                        value="{{ $item['quantity'] }}" 
+                                        class="quantity-input form-input w-full" 
+                                        required min="1" max="{{ $item['stock'] }}">
+                                </td>
+                                <td class="px-4 py-2 border border-gray-300 dark:border-gray-600">
+                                    <input type="number" name="price[]" 
+                                        value="{{ $item['price'] }}" 
+                                        class="price-input form-input w-full bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-800 dark:text-gray-200 rounded-lg" 
+                                        readonly>
+                                </td>
+                                <td class="px-4 py-2 border border-gray-300 dark:border-gray-600">
+                                    <input type="number" name="total[]" 
+                                        value="{{ $item['price'] * $item['quantity'] }}" 
+                                        class="total-input form-input w-full bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-800 dark:text-gray-200 rounded-lg" 
+                                        readonly>
+                                </td>
+                            </tr>
                         @endforeach
                     @else
                         <!-- Mode Normal - Formulaire vide -->
@@ -229,29 +232,55 @@
 <!-- JavaScript -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Gestion du type de transaction
+    // Récupération des éléments DOM
     const transactionType = document.getElementById('transaction_type');
     const saleForm = document.getElementById('saleForm');
     const returnForm = document.getElementById('returnForm');
-    
+    const paymentMode = document.getElementById('payment_mode');
+    const creditCardFields = document.getElementById('creditCardFields');
+
+    // Initialisation si on vient du panier
+    @if(session('from_cart'))
+        // Désactiver le changement de type de transaction
+        if (transactionType) {
+            transactionType.disabled = true;
+            transactionType.value = 'exit'; // Forcer le type "Vente"
+        }
+        
+        // Pré-remplir le total si disponible
+        const totalAmountInput = document.getElementById('total_amount');
+        if (totalAmountInput) {
+            totalAmountInput.value = {{ session('cart_total', 0) }};
+        }
+    @endif
+
+    // Gestion du type de transaction
     function updateTransactionType() {
+        if (!transactionType || !saleForm || !returnForm) return;
+        
         const isReturn = transactionType.value === 'entry';
         saleForm.classList.toggle('hidden', isReturn);
         returnForm.classList.toggle('hidden', !isReturn);
+        
+        // Recalculer le total après changement de type
+        updateTotalAmount();
     }
-    
-    transactionType.addEventListener('change', updateTransactionType);
-    updateTransactionType();
 
-    // Initialisation des valeurs de prix
+    if (transactionType) {
+        transactionType.addEventListener('change', updateTransactionType);
+        updateTransactionType();
+    }
+
+    // Initialisation des prix des produits
     function initProductPrices() {
         document.querySelectorAll('.product-select').forEach(select => {
-            const selectedOption = select.options[select.selectedIndex];
+            const selectedOption = select.selectedOptions[0];
             if (selectedOption) {
-                const price = selectedOption.getAttribute('data-price');
+                const price = selectedOption.dataset.price || 0;
                 const row = select.closest('tr');
                 if (row) {
-                    row.querySelector('.price-input').value = price;
+                    const priceInput = row.querySelector('.price-input');
+                    if (priceInput) priceInput.value = price;
                     updateRowTotal(row);
                 }
             }
@@ -260,158 +289,203 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Mise à jour du total par ligne
     function updateRowTotal(row) {
-        const quantity = parseFloat(row.querySelector('.quantity-input').value) || 0;
-        const price = parseFloat(row.querySelector('.price-input').value) || 0;
-        const total = quantity * price;
-        row.querySelector('.total-input').value = total.toFixed(2);
+        if (!row) return;
+        
+        const quantityInput = row.querySelector('.quantity-input');
+        const priceInput = row.querySelector('.price-input');
+        const totalInput = row.querySelector('.total-input');
+        
+        if (!quantityInput || !priceInput || !totalInput) return;
+        
+        const quantity = parseFloat(quantityInput.value) || 0;
+        const price = parseFloat(priceInput.value) || 0;
+        totalInput.value = (quantity * price).toFixed(2);
+        
         updateTotalAmount();
     }
 
-    // Calcul du montant total
+    // Calcul du montant total global
     function updateTotalAmount() {
+        const totalAmountInput = document.getElementById('total_amount');
+        if (!totalAmountInput) return;
+        
         let total = 0;
         document.querySelectorAll('.total-input').forEach(input => {
             total += parseFloat(input.value) || 0;
         });
         
-        // Si c'est un retour, le montant doit être négatif
-        if (document.getElementById('transaction_type').value === 'entry') {
+        // Inverser le total pour les retours
+        if (transactionType && transactionType.value === 'entry') {
             total = -Math.abs(total);
         }
         
-        document.getElementById('total_amount').value = total.toFixed(2);
+        totalAmountInput.value = total.toFixed(2);
     }
 
-    // Gestion des changements de produit
-    document.querySelector('#salesTable').addEventListener('change', function(e) {
-        if (e.target.classList.contains('product-select')) {
-            const selectedOption = e.target.options[e.target.selectedIndex];
-            const price = selectedOption.getAttribute('data-price');
-            const stock = selectedOption.getAttribute('data-stock');
-            const row = e.target.closest('tr');
-            
-            row.querySelector('.price-input').value = price;
-            
-            // Mise à jour de la quantité maximale uniquement pour les ventes
-            if (document.getElementById('transaction_type').value !== 'entry') {
-                row.querySelector('.quantity-input').setAttribute('max', stock);
+    // Gestion des événements sur la table des ventes
+    const salesTable = document.querySelector('#salesTable');
+    if (salesTable) {
+        // Changement de produit
+        salesTable.addEventListener('change', function(e) {
+            if (e.target.classList.contains('product-select')) {
+                const selectedOption = e.target.selectedOptions[0];
+                const row = e.target.closest('tr');
+                
+                if (selectedOption && row) {
+                    const priceInput = row.querySelector('.price-input');
+                    const quantityInput = row.querySelector('.quantity-input');
+                    
+                    if (priceInput) priceInput.value = selectedOption.dataset.price || 0;
+                    
+                    // Mise à jour du stock max pour les ventes
+                    if (quantityInput && transactionType && transactionType.value !== 'entry') {
+                        quantityInput.setAttribute('max', selectedOption.dataset.stock || 0);
+                    }
+                    
+                    updateRowTotal(row);
+                }
             }
-            
-            updateRowTotal(row);
-        }
-    });
+        });
 
-    // Gestion des changements de quantité
-    document.querySelector('#salesTable').addEventListener('input', function(e) {
-        if (e.target.classList.contains('quantity-input')) {
-            const row = e.target.closest('tr');
-            const quantityInput = e.target;
-            const maxStock = parseInt(quantityInput.getAttribute('max')) || 0;
-            const quantity = parseInt(quantityInput.value);
-            const isEntry = document.getElementById('transaction_type').value === 'entry';
-
-            // Validation de la quantité
-            if (!isEntry && quantity > maxStock) {
-                alert(`Quantité demandée (${quantity}) dépasse le stock disponible (${maxStock}).`);
-                quantityInput.value = maxStock;
+        // Changement de quantité
+        salesTable.addEventListener('input', function(e) {
+            if (e.target.classList.contains('quantity-input')) {
+                const row = e.target.closest('tr');
+                const quantityInput = e.target;
+                const maxStock = parseInt(quantityInput.getAttribute('max')) || 0;
+                const quantity = parseInt(quantityInput.value) || 0;
+                
+                // Validation du stock pour les ventes
+                if (transactionType && transactionType.value !== 'entry' && quantity > maxStock) {
+                    alert(`Quantité demandée (${quantity}) dépasse le stock disponible (${maxStock}).`);
+                    quantityInput.value = maxStock;
+                }
+                
+                updateRowTotal(row);
             }
+        });
 
-            updateRowTotal(row);
-        }
-    });
+        // Suppression de ligne
+        salesTable.addEventListener('click', function(e) {
+            if (e.target.classList.contains('remove-row')) {
+                const tbody = this.querySelector('tbody');
+                if (tbody && tbody.rows.length > 1) {
+                    e.target.closest('tr').remove();
+                    updateTotalAmount();
+                } else {
+                    alert('Vous devez garder au moins un produit.');
+                }
+            }
+        });
+    }
 
     // Ajout d'une nouvelle ligne (uniquement en mode normal)
-    document.getElementById('addRow')?.addEventListener('click', function() {
-        const tbody = document.querySelector('#salesTable tbody');
-        const newRow = tbody.rows[0].cloneNode(true);
-        
-        // Réinitialiser les valeurs
-        newRow.querySelectorAll('input').forEach(input => {
-            if (!input.readOnly) input.value = '';
-            if (input.classList.contains('total-input')) input.value = '0.00';
-        });
-        
-        // Réinitialiser la sélection du produit
-        const select = newRow.querySelector('.product-select');
-        select.selectedIndex = 0;
-        
-        tbody.appendChild(newRow);
-        initProductPrices();
-    });
-
-    // Suppression d'une ligne
-    document.querySelector('#salesTable').addEventListener('click', function(e) {
-        if (e.target.classList.contains('remove-row')) {
-            const tbody = this.querySelector('tbody');
-            if (tbody.rows.length > 1) {
-                e.target.closest('tr').remove();
-                updateTotalAmount();
-            } else {
-                alert('Vous devez garder au moins un produit.');
-            }
+    const addRowBtn = document.getElementById('addRow');
+    if (addRowBtn) {
+        const fromCart = @json(session('from_cart', false));
+        if (!fromCart) {
+            addRowBtn.addEventListener('click', function() {
+                const tbody = document.querySelector('#salesTable tbody');
+                if (!tbody) return;
+                
+                const newRow = tbody.rows[0].cloneNode(true);
+                
+                // Réinitialisation des valeurs
+                newRow.querySelectorAll('input').forEach(input => {
+                    if (!input.readOnly) input.value = '';
+                    if (input.classList.contains('total-input')) input.value = '0.00';
+                });
+                
+                // Réinitialisation de la sélection
+                const select = newRow.querySelector('.product-select');
+                if (select) select.selectedIndex = 0;
+                
+                tbody.appendChild(newRow);
+                initProductPrices();
+            });
         }
-    });
+    }
 
     // Gestion des retours
-    document.getElementById('sale_id')?.addEventListener('change', function() {
-        const selectedOption = this.options[this.selectedIndex];
-        const products = JSON.parse(selectedOption.dataset.products || '[]');
-        const tbody = document.getElementById('returnProductsBody');
-        
-        tbody.innerHTML = '';
-        
-        products.forEach(product => {
-            const row = document.createElement('tr');
-            row.className = 'border-b border-gray-300 dark:border-gray-600';
-            row.innerHTML = `
-                <td class="px-4 py-2">
-                    ${product.name}
-                    <input type="hidden" name="product_id[]" value="${product.id}">
-                </td>
-                <td class="px-4 py-2">${product.pivot.quantity}</td>
-                <td class="px-4 py-2">
-                    <input type="number" name="quantity[]" min="0" max="${product.pivot.quantity}" 
-                        value="0" class="w-full rounded-lg border-gray-300 return-quantity">
-                </td>
-                <td class="px-4 py-2">
-                    <input type="number" name="price[]" value="${product.pivot.unit_price}" 
-                        class="w-full rounded-lg border-gray-300" readonly>
-                </td>
-                <td class="px-4 py-2 text-center">
-                    <button type="button" class="remove-return-row bg-red-500 hover:bg-red-700 text-white p-2 rounded">
-                        Supprimer
-                    </button>
-                </td>
-            `;
-            tbody.appendChild(row);
+    const saleSelect = document.getElementById('sale_id');
+    if (saleSelect) {
+        saleSelect.addEventListener('change', function() {
+            const selectedOption = this.selectedOptions[0];
+            const tbody = document.getElementById('returnProductsBody');
+            
+            if (!selectedOption || !tbody) return;
+            
+            try {
+                const products = JSON.parse(selectedOption.dataset.products || '[]');
+                tbody.innerHTML = '';
+                
+                products.forEach(product => {
+                    const row = document.createElement('tr');
+                    row.className = 'border-b border-gray-300 dark:border-gray-600';
+                    row.innerHTML = `
+                        <td class="px-4 py-2">
+                            ${product.name}
+                            <input type="hidden" name="product_id[]" value="${product.id}">
+                        </td>
+                        <td class="px-4 py-2">${product.pivot.quantity}</td>
+                        <td class="px-4 py-2">
+                            <input type="number" name="quantity[]" min="0" max="${product.pivot.quantity}" 
+                                value="0" class="w-full rounded-lg border-gray-300 return-quantity">
+                        </td>
+                        <td class="px-4 py-2">
+                            <input type="number" name="price[]" value="${product.pivot.unit_price}" 
+                                class="w-full rounded-lg border-gray-300" readonly>
+                        </td>
+                        <td class="px-4 py-2 text-center">
+                            <button type="button" class="remove-return-row bg-red-500 hover:bg-red-700 text-white p-2 rounded">
+                                Supprimer
+                            </button>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+                
+                // Ajout des écouteurs d'événements pour les nouvelles lignes
+                tbody.addEventListener('input', function(e) {
+                    if (e.target.classList.contains('return-quantity')) {
+                        calculateReturnTotal();
+                    }
+                });
+            } catch (e) {
+                console.error('Erreur lors du parsing des produits:', e);
+            }
         });
-    });
+    }
 
     // Calcul du total pour les retours
-    document.getElementById('returnProductsBody')?.addEventListener('input', function(e) {
-        if (e.target.classList.contains('return-quantity')) {
-            calculateReturnTotal();
-        }
-    });
-
     function calculateReturnTotal() {
+        const totalAmountInput = document.getElementById('total_amount');
+        if (!totalAmountInput) return;
+        
         let total = 0;
         document.querySelectorAll('#returnProductsBody tr').forEach(row => {
-            const quantity = parseFloat(row.querySelector('.return-quantity').value) || 0;
-            const price = parseFloat(row.querySelector('input[name="price[]"]').value) || 0;
-            total += quantity * price;
+            const quantityInput = row.querySelector('.return-quantity');
+            const priceInput = row.querySelector('input[name="price[]"]');
+            
+            if (quantityInput && priceInput) {
+                total += (parseFloat(quantityInput.value) || 0) * (parseFloat(priceInput.value) || 0);
+            }
         });
-        document.getElementById('total_amount').value = total.toFixed(2);
+        
+        totalAmountInput.value = total.toFixed(2);
     }
 
     // Gestion des modes de paiement
-    document.getElementById('payment_mode').addEventListener('change', function() {
-        const isCreditCard = this.value === 'credit_card';
-        document.getElementById('creditCardFields').style.display = isCreditCard ? 'block' : 'none';
-    });
+    if (paymentMode && creditCardFields) {
+        paymentMode.addEventListener('change', function() {
+            creditCardFields.style.display = this.value === 'credit_card' ? 'block' : 'none';
+        });
+    }
 
     // Initialisation
     initProductPrices();
 });
 </script>
+
+
 @endsection
