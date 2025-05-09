@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use App\Models\Category; 
+use App\Models\Product;
 
 class CartController extends Controller
 {
@@ -48,6 +49,31 @@ class CartController extends Controller
             'success' => true,
             'cart_count' => $this->getCartCount()
         ]);
+    }
+
+    public function checkout()
+    {
+        $cart = Session::get('cart', []);
+        
+        if (empty($cart)) {
+            return redirect()->route('cart.index')->with('error', 'Votre panier est vide');
+        }
+
+        // Stocker les éléments du panier et le total dans la session
+        Session::put([
+            'from_cart' => true,
+            'cart_items' => $cart,
+            'cart_total' => $this->calculateTotal($cart)
+        ]);
+
+        return redirect()->route('transactions.create');
+    }
+
+    protected function calculateTotal($cart)
+    {
+        return array_sum(array_map(function($item) {
+            return $item['price'] * $item['quantity'];
+        }, $cart));
     }
 
     public function remove(Request $request)
@@ -104,4 +130,6 @@ class CartController extends Controller
         $cart = Session::get('cart', []);
         return array_sum(array_column($cart, 'quantity'));
     }
+
+    
 }

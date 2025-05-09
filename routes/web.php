@@ -161,6 +161,7 @@ Route::prefix('cart')->group(function () {
 // Routes du checkout
 Route::prefix('checkout')->group(function () {
     Route::get('/', [CheckoutController::class, 'show'])->name('checkout.show');
+    Route::get('/cart/checkout', [CartController::class, 'checkout'])->name('cart.checkout');
     Route::post('/process', [CheckoutController::class, 'process'])->name('checkout.process');
     Route::get('/success/{order}', [CheckoutController::class, 'success'])->name('checkout.success');
 });

@@ -63,15 +63,9 @@
                     <i class="fas fa-trash"></i> Vider le panier
                 </button>
                 
-                @if(Route::has('checkout'))
-                    <a href="{{ route('checkout') }}" class="btn btn-primary">
-                        <i class="fas fa-credit-card"></i> Passer la commande
-                    </a>
-                @else
-                    <button class="btn btn-primary" disabled>
-                        <i class="fas fa-credit-card"></i> Passer la commande (bientôt disponible)
-                    </button>
-                @endif
+                <a href="{{ route('cart.checkout') }}" class="btn btn-primary">
+                    <i class="fas fa-credit-card"></i> Passer la commande
+                </a>
             </div>
         @else
             <div class="alert alert-info">
